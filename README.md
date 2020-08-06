@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/travissluka/JEDI-modeltemplate.svg?branch=develop)](https://travis-ci.org/travissluka/JEDI-modeltemplate)
+
 # Example JEDI interface project
 
 The following instructions should have the steps needed to implement an interface capable of
