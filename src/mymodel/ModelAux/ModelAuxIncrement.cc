@@ -1,11 +1,12 @@
 /*
- * (C) Copyright 2019-2019 UCAR
+ * (C) Copyright 2019-2020 UCAR
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
 #include "mymodel/ModelAux/ModelAuxIncrement.h"
+#include "mymodel/ModelAux/ModelAuxControl.h"
 
 #include "oops/util/abor1_cpp.h"
 
@@ -24,8 +25,8 @@ namespace mymodel {
 
   ModelAuxIncrement::ModelAuxIncrement(const ModelAuxIncrement &, const bool) {
     util::abor1_cpp(
-      "ModelAuxIncrement::ModelAuxIncrement() needs to be implemented.",
-      __FILE__, __LINE__);
+       "ModelAuxIncrement::ModelAuxIncrement() needs to be implemented.",
+       __FILE__, __LINE__);
   }
 
 // ----------------------------------------------------------------------------
@@ -45,6 +46,13 @@ namespace mymodel {
       __FILE__, __LINE__);
   }
 
+// ----------------------------------------------------------------------------
+  void ModelAuxIncrement::diff(const ModelAuxControl &,
+                               const ModelAuxControl &) {
+    util::abor1_cpp(
+      "ModelAuxIncrement::diff() needs to be implemented.",
+      __FILE__, __LINE__);
+  }
 // ----------------------------------------------------------------------------
 
   void ModelAuxIncrement::zero() {

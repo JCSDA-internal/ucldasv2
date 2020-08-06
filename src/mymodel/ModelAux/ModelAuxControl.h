@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2019-2019 UCAR
+ * (C) Copyright 2019-2020 UCAR
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -20,6 +20,7 @@ namespace eckit {
 }
 namespace mymodel {
   class Geometry;
+  class ModelAuxIncrement;
 }
 
 //-----------------------------------------------------------------------------
@@ -32,10 +33,14 @@ namespace mymodel {
    public:
     static const std::string classname() {return "mymodel::ModelAuxControl";}
 
+    // constructors / destructor
     ModelAuxControl(const Geometry &, const eckit::Configuration &);
     ModelAuxControl(const Geometry &, const ModelAuxControl &);
     ModelAuxControl(const ModelAuxControl &, const bool);
     ~ModelAuxControl();
+
+    // math operators
+    ModelAuxControl & operator +=(const ModelAuxIncrement &);
 
    private:
     void print(std::ostream & os) const;

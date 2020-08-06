@@ -1,11 +1,12 @@
 /*
- * (C) Copyright 2019-2019 UCAR
+ * (C) Copyright 2019-2020 UCAR
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
 #include "mymodel/ModelAux/ModelAuxControl.h"
+#include "mymodel/ModelAux/ModelAuxIncrement.h"
 
 #include "oops/util/abor1_cpp.h"
 
@@ -47,11 +48,19 @@ namespace mymodel {
 
 // ----------------------------------------------------------------------------
 
+  ModelAuxControl & ModelAuxControl::operator+=(const ModelAuxIncrement & inc) {
+    util::abor1_cpp(
+      "ModelAuxControl::operator+=() needs to be implemented.",
+      __FILE__, __LINE__);
+    return *this;
+  }
+// ----------------------------------------------------------------------------
+
   void ModelAuxControl::print(std::ostream & os) const {
-    util::abor1_cpp("ModelAuxControl::print() needs to be implemented.",
-                    __FILE__, __LINE__);
     os << "(TODO, print diagnostic info about the ModelAuxControl here)"
        << std::endl;
+    util::abor1_cpp("ModelAuxControl::print() needs to be implemented.",
+                    __FILE__, __LINE__);
   }
 
 // ----------------------------------------------------------------------------

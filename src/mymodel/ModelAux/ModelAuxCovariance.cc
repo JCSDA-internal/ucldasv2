@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2019-2019 UCAR
+ * (C) Copyright 2019-2020 UCAR
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -18,7 +18,7 @@ namespace mymodel {
 
   ModelAuxCovariance::ModelAuxCovariance(const eckit::Configuration & conf,
                                          const Geometry & geom)
-  : conf_(conf) {
+    : conf_(conf) {
     util::abor1_cpp(
       "ModelAuxCovariance::ModelAuxCovariance() needs to be implemented.",
       __FILE__, __LINE__);
@@ -70,10 +70,10 @@ namespace mymodel {
 // ----------------------------------------------------------------------------
 
   void ModelAuxCovariance::print(std::ostream & os) const {
-    util::abor1_cpp("ModelAuxCovariance::print() needs to be implemented.",
-                    __FILE__, __LINE__);
     os << "(TODO, print diagnostic info about the ModelAuxCovariance here)"
        << std::endl;
+    util::abor1_cpp("ModelAuxCovariance::print() needs to be implemented.",
+                    __FILE__, __LINE__);
   }
 
 // ----------------------------------------------------------------------------

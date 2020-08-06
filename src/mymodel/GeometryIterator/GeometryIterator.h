@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2019-2019 UCAR
+ * (C) Copyright 2019-2020 UCAR
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -32,6 +32,12 @@ namespace mymodel {
    public:
     static const std::string classname() {return "mymodel::GeometryIterator";}
 
+    // constructors / destructor
+    explicit GeometryIterator(const Geometry &, const int &, const int &);
+    GeometryIterator(const GeometryIterator&);
+    ~GeometryIterator();
+
+    // other operators
     bool operator!=(const GeometryIterator &) const;
     GeometryIterator& operator++();
     eckit::geometry::Point2 operator*() const;

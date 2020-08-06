@@ -1,8 +1,9 @@
+atlas/
 eckit/
 fckit/
-saber/
-oops/
-ioda/
 ioda-converters/
+ioda/
+oops/
+saber/
 ufo/
 mymodel

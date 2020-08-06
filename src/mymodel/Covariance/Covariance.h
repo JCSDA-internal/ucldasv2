@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2019 UCAR
+ * (C) Copyright 2019-2020 UCAR
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -37,13 +37,15 @@ namespace mymodel {
    public:
     static const std::string classname() {return "mymodel::Covariance";}
 
+    // constructors/destructors
     Covariance(const Geometry &, const oops::Variables &,
                     const eckit::Configuration &,
                     const State &, const State &);
     ~Covariance();
 
-    void multiply(const Increment &, Increment &) const;
+    // math routines
     void inverseMultiply(const Increment &, Increment &) const;
+    void multiply(const Increment &, Increment &) const;
     void randomize(Increment &) const;
 
    private:

@@ -2,7 +2,7 @@
 
 The following instructions should have the steps needed to implement an interface capable of
 running some of the basic JEDI applications, as well as the LETKF data assimilation application.
-(Instructions for the variational DA applications are still in the works). 
+(Instructions for the variational DA applications are still in the works).
 
 To get started:
 
@@ -10,7 +10,7 @@ To get started:
    ```
    git clone https://github.com/travissluka/JEDI-modeltemplate.git <source_dir>
    ```
-2. From the source directory run the script to rename all instances 
+2. From the source directory run the script to rename all instances
    of `mymodel` and `MYMODEL` in the source code and file structure to whatever name you want.
    ```
    cd <source_dir>
@@ -30,7 +30,7 @@ To get started:
    cd <build_dir>
    ecbuild ../<source_dir>/bundle
    ```
-5. Compile, and run the unit tests. At this point, only the `Geometry` test is enabled, and it 
+5. Compile, and run the unit tests. At this point, only the `Geometry` test is enabled, and it
    will fail until you start implementing the interface.
    ```
    cd <proj_name>
@@ -45,12 +45,13 @@ with which unit tests should be implemented and have passing before attempting t
 decide which application you want to get working. Then, ensure the associated unit tests pass ( see "Unit Tests" section below).
 Last, the application can be built by uncommenting the appropriate lines in the `src/mains/CMakeLists.txt` file. Note, the unit
 tests dont seem to cover all the aspects of the interface required by the applications, so even if your unit tests pass you might
-still have to implement more class methods 
+still have to implement more class methods
 
-### hofx3d.x
+### hofx_nomodel.x
 
 - TestGeometry
 - TestState
+- TestGetValues
 
 ### forecast.x
 
@@ -58,13 +59,21 @@ still have to implement more class methods
 - TestModel
 - TestState
 
+### makeobs.x
+
+- TestGeometry
+- TestState
+- TestGetValues
+
 ### hofx.x
 
 - TestGeometry
 - TestModel
 - TestState
 
-### LETKF.x
+### dirac.x
+
+### letkf.x
 
 - TestGeometry
 - TestGeometryIterator
@@ -78,11 +87,12 @@ still have to implement more class methods
 - TestIncrement
 - TestState
 
+### var.x
 
 ## Unit Tests
 
 The following is a list of the unit tests (in alphabetical order), along with a list of the required interface classes
-that need to be implemented. ( This does not including already implemented interfaces provided by UFO and IODA.). 
+that need to be implemented. ( This does not include already implemented interfaces provided by UFO and IODA.).
 
 To get a unit test working:
 1. uncomment the desired test from `test/CmakeLists.txt`
@@ -90,9 +100,9 @@ To get a unit test working:
 3. hopefully at this point it is able to compile..
 4. Running `ctest` within `<build_dir>/<proj_name>/` should run the test, but it will fail. Running
    ctest with the `-V` option will allow you to see the output. There should be errors explicitly telling you
-   which class methods need to be implemented. Also, model specific parameters will need to be added to the input 
+   which class methods need to be implemented. Also, model specific parameters will need to be added to the input
    `test/testinput/interface.yml`
-   
+
 
 ### TestErrorCovariance
 
@@ -111,11 +121,23 @@ To get a unit test working:
 - GeometryIterator
 - Increment
 
+### TestGetValues
+
+- Geometry
+- State
+- GetValues
+
 ### TestIncrement
 
 - Geometry
-- GetValuesTraj
 - Increment
+- State
+
+### TestLinearGetValues
+
+- Geometry
+- Increment
+- LinearGetValues
 - State
 
 ### TestLinearModel
@@ -153,4 +175,4 @@ To get a unit test working:
 ### TestState
 
 - Geometry
-- State (Note: requires Fields)
+- State

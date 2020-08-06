@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2019-2019 UCAR
+ * (C) Copyright 2019-2020 UCAR
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -20,6 +20,7 @@ namespace eckit {
 }
 namespace mymodel {
   class Geometry;
+  class ModelAuxControl;
 }
 
 //-----------------------------------------------------------------------------
@@ -32,19 +33,21 @@ namespace mymodel {
    public:
     static const std::string classname() {return "mymodel::ModelAuxIncrement";}
 
+    // constructors / destructor
     ModelAuxIncrement(const ModelAuxIncrement &, const eckit::Configuration &);
     ModelAuxIncrement(const ModelAuxIncrement &, const bool);
     ModelAuxIncrement(const Geometry &, const eckit::Configuration &);
     ~ModelAuxIncrement();
 
-    // Linear algebra operators
-    void zero();
+    // math operators
     ModelAuxIncrement & operator*=(const double);
     ModelAuxIncrement & operator+=(const ModelAuxIncrement &);
     ModelAuxIncrement & operator-=(const ModelAuxIncrement &);
-    double norm() const;
     void axpy(const double, const ModelAuxIncrement &);
+    void diff(const ModelAuxControl &, const ModelAuxControl &);
     double dot_product_with(const ModelAuxIncrement &) const;
+    double norm() const;
+    void zero();
 
    private:
     void print(std::ostream &) const;

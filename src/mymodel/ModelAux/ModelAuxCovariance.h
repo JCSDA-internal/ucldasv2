@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2019-2019 UCAR
+ * (C) Copyright 2019-2020 UCAR
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -32,15 +32,17 @@ class ModelAuxCovariance : public util::Printable,
  public:
   static const std::string classname() {return "mymodel::ModelBiasCovariance";}
 
-/// Constructor, destructor
+  // Constructor, destructor
   ModelAuxCovariance(const eckit::Configuration &, const Geometry &);
   ~ModelAuxCovariance();
 
-/// Linear algebra operators
+  // math operators
+  void inverseMultiply(const ModelAuxIncrement &, ModelAuxIncrement &) const;
   void linearize(const ModelAuxControl &, const Geometry &);
   void multiply(const ModelAuxIncrement &, ModelAuxIncrement &);
-  void inverseMultiply(const ModelAuxIncrement &, ModelAuxIncrement &) const;
   void randomize(ModelAuxIncrement &) const;
+
+  // accessors
   const eckit::Configuration & config() const {return conf_;}
 
  private:

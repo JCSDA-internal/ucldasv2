@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2019-2019 UCAR
+ * (C) Copyright 2019-2020 UCAR
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -12,8 +12,11 @@
 #include <ostream>
 #include <string>
 
+#include <boost/shared_ptr.hpp>
+
 #include "eckit/mpi/Comm.h"
 
+#include "oops/base/Variables.h"
 #include "oops/util/DateTime.h"
 #include "oops/util/ObjectCounter.h"
 #include "oops/util/Printable.h"
@@ -22,16 +25,11 @@
 namespace eckit {
   class Configuration;
 }
-namespace oops {
-  class Variables;
-}
 namespace ufo {
   class GeoVaLs;
   class Locations;
 }
 namespace mymodel {
-  class Fields;
-  class GetValuesTraj;
   class Geometry;
   class Increment;
 }
@@ -46,37 +44,39 @@ namespace mymodel {
    public:
     static const std::string classname() {return "mymodel::State";}
 
-    // constructor, destructor
+    // constructors, destructors
+    State(const Geometry &, const eckit::Configuration &);
     State(const Geometry &, const oops::Variables &,
-          const eckit::Configuration &);
+          const util::DateTime &);
     State(const Geometry &, const State &);
     State(const State &);
-    State & operator=(const State &);
     ~State();
 
-    // interpolate state to observations locations
-    void getValues(const ufo::Locations &,
-                   const oops::Variables &,
-                   ufo::GeoVaLs &) const;
-    void getValues(const ufo::Locations &,
-                   const oops::Variables &,
-                   ufo::GeoVaLs &,
-                   GetValuesTraj &) const;
-
-    // interactions with increment
+    // math operators
     State & operator+=(const Increment &);
-
-    const util::DateTime & validTime() const;
-    util::DateTime & validTime();
-    double norm() const;
-    void write(const eckit::Configuration &) const;
-    void zero();
     void accumul(const double &, const State &);
+    double norm() const;
+    void zero();
+
+    // I/O
+    void read(const eckit::Configuration &);
+    void write(const eckit::Configuration &) const;
+
+    // time manipulation
+    void updateTime(const util::Duration & dt) { time_ += dt; }
+    const util::DateTime & validTime() const { return time_; }
+    util::DateTime & validTime() { return time_; }
+
+    // other accessors
+    boost::shared_ptr<const Geometry> geometry() const;
+    const oops::Variables & variables() const { return vars_; }
 
    private:
     void print(std::ostream &) const;
 
-    std::unique_ptr<Fields> fields_;
+    boost::shared_ptr<const Geometry> geom_;
+    oops::Variables vars_;
+    util::DateTime time_;
   };
 }  // namespace mymodel
 

@@ -1,23 +1,31 @@
-# ecbuild_add_executable( TARGET  mymodel_hofx3d.x
-#                         SOURCES HofX3D.cc
-#                         LIBS    mymodel )
+# TODO(template_impl) ecbuild_add_executable( TARGET  mymodel_hofx_nomodel.x
+# TODO(template_impl)                         SOURCES HofXNoModel.cc
+# TODO(template_impl)                         LIBS    mymodel )
 
-# ecbuild_add_executable( TARGET  mymodel_forecast.x
-#                        SOURCES Forecast.cc
-#                        LIBS    mymodel )
+# TODO(template_impl) ecbuild_add_executable( TARGET  mymodel_makeobs.x
+# TODO(template_impl)                         SOURCES MakeObs.cc
+# TODO(template_impl)                         LIBS    mymodel )
 
-# ecbuild_add_executable( TARGET  mymodel_hofx.x
-#                        SOURCES HofX.cc
-#                        LIBS    mymodel )
+# TODO(template_impl) ecbuild_add_executable( TARGET  mymodel_forecast.x
+# TODO(template_impl)                         SOURCES Forecast.cc
+# TODO(template_impl)                         LIBS    mymodel )
 
-# ecbuild_add_executable( TARGET  mymodel_letkf.x
-#                        SOURCES LETKF.cc
-#                        LIBS    mymodel )
+# TODO(template_impl) ecbuild_add_executable( TARGET  mymodel_hofx.x
+# TODO(template_impl)                         SOURCES HofX.cc
+# TODO(template_impl)                         LIBS    mymodel )
 
-# ecbuild_add_executable( TARGET  mymodel_staticbinit.x
-#                         SOURCES StaticBInit.cc
-#                         LIBS    mymodel )
+# TODO(template_impl) ecbuild_add_executable( TARGET  mymodel_letkf.x
+# TODO(template_impl)                         SOURCES LETKF.cc
+# TODO(template_impl)                         LIBS    mymodel )
 
-# ecbuild_add_executable( TARGET  mymodel_var.x
-#                         SOURCES Var.cc
-#                         LIBS    mymodel )
+# TODO(template_impl) ecbuild_add_executable( TARGET  mymodel_staticbinit.x
+# TODO(template_impl)                         SOURCES StaticBInit.cc
+# TODO(template_impl)                         LIBS    mymodel )
+
+# TODO(template_impl) ecbuild_add_executable( TARGET  mymodel_dirac.x
+# TODO(template_impl)                         SOURCES Dirac.cc
+# TODO(template_impl)                         LIBS    mymodel )
+
+# TODO(template_impl) ecbuild_add_executable( TARGET  mymodel_var.x
+# TODO(template_impl)                         SOURCES Var.cc
+# TODO(template_impl)                         LIBS    mymodel )

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2019-2019 UCAR
+ * (C) Copyright 2019-2020 UCAR
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -21,10 +21,10 @@ namespace mymodel {
 // ----------------------------------------------------------------------------
 
   Model::Model(const Geometry & geom, const eckit::Configuration & conf)
-    : tstep_("PT1H"), geom_(new Geometry(geom)), vars_(conf) {
+    : geom_(new Geometry(geom)), tstep_(conf.getString("tstep")),
+      vars_(conf, "model variables") {
     util::abor1_cpp("Model::Model() needs to be implemented.",
                     __FILE__, __LINE__);
-    // NOTE: tstep_ should be set to the actual timestep
   }
 
 // ----------------------------------------------------------------------------
@@ -59,11 +59,11 @@ namespace mymodel {
 // ----------------------------------------------------------------------------
 
   void Model::print(std::ostream & os) const {
-    util::abor1_cpp("Model::print() needs to be implemented.",
-                    __FILE__, __LINE__);
     os << "Geometry: "
        << "(TODO, print diagnostic info about the geometry here)"
        << std::endl;
+    util::abor1_cpp("Model::print() needs to be implemented.",
+                    __FILE__, __LINE__);
   }
 
 // ----------------------------------------------------------------------------

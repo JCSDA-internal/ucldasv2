@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2019-2019 UCAR
+ * (C) Copyright 2019-2020 UCAR
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -34,20 +34,21 @@ namespace mymodel {
    public:
     static const std::string classname() {return "mymodel::Geometry";}
 
+    // constructors and destructor
     explicit Geometry(const eckit::Configuration &, const eckit::mpi::Comm &);
     Geometry(const Geometry &);
     ~Geometry();
 
+    // accessors
     const eckit::mpi::Comm & getComm() const {return comm_;}
 
-    // //These are needed for the GeometryIterator Interface
-    // GeometryIterator begin() const;
-    // GeometryIterator end() const;
+    // These are needed for the GeometryIterator Interface
+    // TODO(template_impl) GeometryIterator begin() const;
+    // TODO(template_impl) GeometryIterator end() const;
 
    private:
     void print(std::ostream &) const;
 
-    int keyGeom_;
     const eckit::mpi::Comm & comm_;
   };
 }  // namespace mymodel

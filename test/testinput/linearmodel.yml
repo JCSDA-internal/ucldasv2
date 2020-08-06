@@ -1,0 +1,26 @@
+# Needed for TestGeometry
+geometry:
+  # insert other model specific things here
+
+analysis variables: &vars [var1, var2]
+
+model:
+  name: MYMODEL
+  model variables: *vars
+  tstep: PT6H
+
+initial condition:
+  state variables: *vars
+  date: 2018-04-15T00:00:00Z
+
+background error:
+  covariance model: mymodelCovar
+
+linear model test:
+  forecast length: P1D
+
+linear model:
+  name: identity
+  tstep: PT6H
+
+model aux control:

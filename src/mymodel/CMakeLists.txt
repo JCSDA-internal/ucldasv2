@@ -1,53 +1,20 @@
 #include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
+# the source code in this directory,
+# all other files are handled through the subdirectory's respective CMakeLists.txt
 list( APPEND mymodel_src_files
   Traits.h
-  
-  # # Covariance
-  # Covariance/Covariance.h
-  # Covariance/Covariance.cc
+)
 
-  # # Fields
-  # Fields/Fields.h
-  # Fields/Fields.cc
-  
-  # Geometry  
-  Geometry/Geometry.h  
-  Geometry/Geometry.cc
-  Geometry/GeometryFortran.h
-  Geometry/Geometry.interface.F90
-  Geometry/Geometry.F90
+# a convenience frunction to make adding source files from subdirectories easier
+# (To keep from having to use the full path every time)
+function(mymodel_target_sources)
+  foreach( src IN LISTS ARGN)
+    target_sources(mymodel PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/${src})
+  endforeach()
+endfunction()
 
-  # # GeometryIterator
-  # GeometryIterator/GeometryIterator.h
-  # GeometryIterator/GeometryIterator.cc
-
-  # # GetValuesTraj
-  # GetValuesTraj/GetValuesTraj.h
-  # GetValuesTraj/GetValuesTraj.cc
-  
-  # # Increment
-  # Increment/Increment.h
-  # Increment/Increment.cc
-
-  # # Model
-  # Model/Model.h
-  # Model/Model.cc
-
-  # # ModelAux
-  # ModelAux/ModelAuxControl.h
-  # ModelAux/ModelAuxControl.cc
-  # ModelAux/ModelAuxIncrement.h
-  # ModelAux/ModelAuxIncrement.cc
-  # ModelAux/ModelAuxCovariance.h
-  # ModelAux/ModelAuxCovariance.cc
-  
-  # # State
-  # State/State.h
-  # State/State.cc
-  )
-
-
+# the main library for this interface
 ecbuild_add_library( TARGET   mymodel
                      SOURCES  ${mymodel_src_files}
                      LIBS     ${NETCDF_LIBRARIES}
@@ -55,3 +22,13 @@ ecbuild_add_library( TARGET   mymodel
                      INSTALL_HEADERS LISTED
                      LINKER_LANGUAGE ${MYMODEL_LINKER_LANGUAGE}
                     )
+
+# add source code in the subdirectories
+# TODO(template_impl) add_subdirectory(Covariance)
+add_subdirectory(Geometry)
+# TODO(template_impl) add_subdirectory(GeometryIterator)
+# TODO(template_impl) add_subdirectory(GetValues)
+# TODO(template_impl) add_subdirectory(Increment)
+# TODO(template_impl) add_subdirectory(Model)
+# TODO(template_impl) add_subdirectory(ModelAux)
+# TODO(template_impl) add_subdirectory(State)

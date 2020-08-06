@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2019-2019 UCAR.
+ * (C) Copyright 2019-2020 UCAR.
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -13,16 +13,18 @@
 
 #include <memory>
 #include <ostream>
+#include <string>
 
 #include <boost/shared_ptr.hpp>
 
+#include "oops/base/Variables.h"
 #include "oops/util/DateTime.h"
 #include "oops/util/Printable.h"
+#include "oops/base/GeneralizedDepartures.h"
 
 // forward declarations
 namespace oops {
-  class GridPoint;
-  class UnstructuredGrid;
+  class LocalIncrement;
   class Variables;
 }
 namespace ufo {
@@ -30,9 +32,8 @@ namespace ufo {
   class Locations;
 }
 namespace mymodel {
-  class Fields;
   class Geometry;
-  class GetValuesTraj;
+  class GeometryIterator;
   class State;
 }
 
@@ -41,59 +42,60 @@ namespace mymodel {
 namespace mymodel {
 
   // Increment class
-  class Increment : public util::Printable {
+  class Increment : public oops::GeneralizedDepartures,
+                    public util::Printable,
+                    private util::ObjectCounter<Increment> {
    public:
+    static const std::string classname() {return "mymodel::Increment";}
+
     // Constructor, destructor
     Increment(const Geometry &, const oops::Variables &,
               const util::DateTime &);
+    Increment(const Geometry &, const Increment &);
     Increment(const Increment &, const bool);
+    Increment(const Increment &);
     ~Increment();
 
-    void read(const eckit::Configuration &);
-    double norm() const;
-    void random();
-
+        // Math operators
     Increment & operator =(const Increment &);
     Increment & operator-=(const Increment &);
     Increment & operator+=(const Increment &);
     Increment & operator*=(const double &);
+    void accumul(const double &, const State &);
     void axpy(const double &, const Increment &, const bool check = true);
-    double dot_product_with(const Increment &) const;
-    void zero();
     void diff(const State &, const State &);
+    double dot_product_with(const Increment &) const;
+    double norm() const;
+    void random();
     void schur_product_with(const Increment &);
-
-    // Interpolate increment to observation location
-    void getValuesTL(const ufo::Locations &,
-                     const oops::Variables &,
-                     ufo::GeoVaLs &,
-                     const GetValuesTraj &) const;
-
-    void getValuesAD(const ufo::Locations &,
-                     const oops::Variables &,
-                     const ufo::GeoVaLs &,
-                     const GetValuesTraj &);
+    void zero();
+    void zero(const util::DateTime &);
 
     // time manipulation
-    const util::DateTime & validTime() const;
-    util::DateTime & validTime();
-    void updateTime(const util::Duration &);
+    void updateTime(const util::Duration & dt) { time_ += dt; }
+    const util::DateTime & validTime() const { return time_; }
+    util::DateTime & validTime() { return time_; }
 
-    // unstructured grid conversions
-    void ug_coord(oops::UnstructuredGrid &) const;
-    void field_to_ug(oops::UnstructuredGrid &, const int &) const;
-    void field_from_ug(const oops::UnstructuredGrid &, const int &);
+    // dirac
+    void dirac(const eckit::Configuration &);
 
     // Iterator access
-    oops::GridPoint getPoint(const GeometryIterator &) const;
-    void setPoint(const oops::GridPoint &, const GeometryIterator &);
+     oops::LocalIncrement getLocal(const GeometryIterator &) const;
+     void setLocal(const oops::LocalIncrement &, const GeometryIterator &);
 
+    // other accessors
+    boost::shared_ptr<const Geometry> geometry() const { return geom_; }
 
-    boost::shared_ptr<const Geometry> geometry() const;
+    // I/O
+    void read(const eckit::Configuration &);
+    void write(const eckit::Configuration &) const;
 
    private:
     void print(std::ostream &) const;
-    std::unique_ptr<Fields> fields_;
+
+    boost::shared_ptr<const Geometry> geom_;
+    util::DateTime time_;
+    oops::Variables vars_;
   };
 }  // namespace mymodel
 
