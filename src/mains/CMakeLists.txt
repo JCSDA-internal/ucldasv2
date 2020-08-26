@@ -2,10 +2,6 @@
 # TODO(template_impl)                         SOURCES HofXNoModel.cc
 # TODO(template_impl)                         LIBS    mymodel )
 
-# TODO(template_impl) ecbuild_add_executable( TARGET  mymodel_makeobs.x
-# TODO(template_impl)                         SOURCES MakeObs.cc
-# TODO(template_impl)                         LIBS    mymodel )
-
 # TODO(template_impl) ecbuild_add_executable( TARGET  mymodel_forecast.x
 # TODO(template_impl)                         SOURCES Forecast.cc
 # TODO(template_impl)                         LIBS    mymodel )
