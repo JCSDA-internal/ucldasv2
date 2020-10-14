@@ -108,7 +108,29 @@ namespace mymodel {
 
 // ----------------------------------------------------------------------------
 
-  boost::shared_ptr<const Geometry> State::geometry() const {return geom_;}
+  size_t State::serialSize() const {
+    util::abor1_cpp("State::serialSize() needs to be implemented.",
+                     __FILE__, __LINE__);
+    return 0;
+  }
+
+// ----------------------------------------------------------------------------
+
+  void State::serialize(std::vector<double> & vec) const {
+    util::abor1_cpp("State::serialize() needs to be implemented.",
+                     __FILE__, __LINE__);
+  }
+
+// ----------------------------------------------------------------------------
+
+  void State::deserialize(const std::vector<double> & vec, size_t & s) {
+    util::abor1_cpp("State::deserialize() needs to be implemented.",
+                     __FILE__, __LINE__);
+  }
+
+// ----------------------------------------------------------------------------
+
+  std::shared_ptr<const Geometry> State::geometry() const {return geom_;}
 
 // ----------------------------------------------------------------------------
 

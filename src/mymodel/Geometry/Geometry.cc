@@ -68,5 +68,12 @@ TODO(template_impl) */
   }
 
 // ----------------------------------------------------------------------------
+  std::vector<double> Geometry::verticalCoord(std::string &) const {
+    util::abor1_cpp("Geometry::verticalCoord() needs to be implemented.",
+                    __FILE__, __LINE__);
+    return {};
+  }
+
+// ----------------------------------------------------------------------------
 
 }  // namespace mymodel

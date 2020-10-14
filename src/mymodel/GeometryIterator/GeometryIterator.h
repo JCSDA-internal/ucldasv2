@@ -38,6 +38,7 @@ namespace mymodel {
     ~GeometryIterator();
 
     // other operators
+    bool operator==(const GeometryIterator &) const;
     bool operator!=(const GeometryIterator &) const;
     GeometryIterator& operator++();
     eckit::geometry::Point2 operator*() const;

@@ -159,6 +159,13 @@ namespace mymodel {
 
 // ----------------------------------------------------------------------------
 
+  void Increment::ones() {
+    util::abor1_cpp("Increment::ones() needs to be implemented.",
+                    __FILE__, __LINE__);
+  }
+
+// ----------------------------------------------------------------------------
+
   void Increment::dirac(const eckit::Configuration & conf) {
     util::abor1_cpp("Increment::dirac() needs to be implemented.",
                     __FILE__, __LINE__);
@@ -181,6 +188,28 @@ namespace mymodel {
                            const GeometryIterator & iter) {
     util::abor1_cpp("Increment::setLocal() needs to be implemented.",
                     __FILE__, __LINE__);
+  }
+
+// ----------------------------------------------------------------------------
+
+  size_t Increment::serialSize() const {
+    util::abor1_cpp("Increment::serialSize() needs to be implemented.",
+                     __FILE__, __LINE__);
+    return 0;
+  }
+
+// ----------------------------------------------------------------------------
+
+  void Increment::serialize(std::vector<double> & vec) const {
+    util::abor1_cpp("Increment::serialize() needs to be implemented.",
+                     __FILE__, __LINE__);
+  }
+
+// ----------------------------------------------------------------------------
+
+  void Increment::deserialize(const std::vector<double> & vec, size_t & s) {
+    util::abor1_cpp("Increment::deserialize() needs to be implemented.",
+                     __FILE__, __LINE__);
   }
 
 // ----------------------------------------------------------------------------

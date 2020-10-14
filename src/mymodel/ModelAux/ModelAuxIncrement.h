@@ -10,9 +10,11 @@
 
 #include <ostream>
 #include <string>
+#include <vector>
 
 #include "oops/util/ObjectCounter.h"
 #include "oops/util/Printable.h"
+#include "oops/util/Serializable.h"
 
 // forward declarations
 namespace eckit {
@@ -29,6 +31,7 @@ namespace mymodel {
 
   // ModelAuxControl class
   class ModelAuxIncrement : public util::Printable,
+                            public util::Serializable,
                             private util::ObjectCounter<ModelAuxIncrement> {
    public:
     static const std::string classname() {return "mymodel::ModelAuxIncrement";}
@@ -48,6 +51,11 @@ namespace mymodel {
     double dot_product_with(const ModelAuxIncrement &) const;
     double norm() const;
     void zero();
+
+    // serialize (only needed for EDA?)
+    size_t serialSize() const override;
+    void serialize(std::vector<double> &) const override;
+    void deserialize(const std::vector<double> &, size_t &) override;
 
    private:
     void print(std::ostream &) const;

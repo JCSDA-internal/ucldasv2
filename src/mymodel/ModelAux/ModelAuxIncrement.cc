@@ -116,6 +116,29 @@ namespace mymodel {
 
 // ----------------------------------------------------------------------------
 
+  size_t ModelAuxIncrement::serialSize() const {
+    util::abor1_cpp("ModelAuxIncrement::serialSize() needs to be implemented.",
+                     __FILE__, __LINE__);
+    return 0;
+  }
+
+// ----------------------------------------------------------------------------
+
+  void ModelAuxIncrement::serialize(std::vector<double> & vec) const {
+    util::abor1_cpp("ModelAuxIncrement::serialize() needs to be implemented.",
+                     __FILE__, __LINE__);
+  }
+
+// ----------------------------------------------------------------------------
+
+  void ModelAuxIncrement::deserialize(const std::vector<double> & vec,
+                                      size_t & s) {
+    util::abor1_cpp("ModelAuxIncrement::deserialize() needs to be implemented.",
+                     __FILE__, __LINE__);
+  }
+
+// ----------------------------------------------------------------------------
+
   void ModelAuxIncrement::print(std::ostream & os) const {
     util::abor1_cpp("ModelAuxIncrement::print() needs to be implemented.",
                     __FILE__, __LINE__);

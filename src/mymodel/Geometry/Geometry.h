@@ -10,6 +10,7 @@
 
 #include <ostream>
 #include <string>
+#include <vector>
 
 #include "eckit/mpi/Comm.h"
 
@@ -43,8 +44,11 @@ namespace mymodel {
     const eckit::mpi::Comm & getComm() const {return comm_;}
 
     // These are needed for the GeometryIterator Interface
-    // TODO(template_impl) GeometryIterator begin() const;
-    // TODO(template_impl) GeometryIterator end() const;
+    // TODO(template_impl) GeometryIterator begin() const; 
+    // TODO(template_impl) GeometryIterator end() const; 
+
+    // vertical coordinate (only needed for GETKF?)
+    std::vector<double> verticalCoord(std::string &) const;
 
    private:
     void print(std::ostream &) const;

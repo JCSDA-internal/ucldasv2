@@ -14,13 +14,13 @@
 #include <memory>
 #include <ostream>
 #include <string>
+#include <vector>
 
-#include <boost/shared_ptr.hpp>
-
+#include "oops/base/GeneralizedDepartures.h"
 #include "oops/base/Variables.h"
 #include "oops/util/DateTime.h"
 #include "oops/util/Printable.h"
-#include "oops/base/GeneralizedDepartures.h"
+#include "oops/util/Serializable.h"
 
 // forward declarations
 namespace oops {
@@ -44,6 +44,7 @@ namespace mymodel {
   // Increment class
   class Increment : public oops::GeneralizedDepartures,
                     public util::Printable,
+                    public util::Serializable,
                     private util::ObjectCounter<Increment> {
    public:
     static const std::string classname() {return "mymodel::Increment";}
@@ -70,6 +71,7 @@ namespace mymodel {
     void schur_product_with(const Increment &);
     void zero();
     void zero(const util::DateTime &);
+    void ones();
 
     // time manipulation
     void updateTime(const util::Duration & dt) { time_ += dt; }
@@ -80,11 +82,16 @@ namespace mymodel {
     void dirac(const eckit::Configuration &);
 
     // Iterator access
-     oops::LocalIncrement getLocal(const GeometryIterator &) const;
-     void setLocal(const oops::LocalIncrement &, const GeometryIterator &);
+    oops::LocalIncrement getLocal(const GeometryIterator &) const;
+    void setLocal(const oops::LocalIncrement &, const GeometryIterator &);
+
+    // serialize (only needed for EDA?)
+    size_t serialSize() const override;
+    void serialize(std::vector<double> &) const override;
+    void deserialize(const std::vector<double> &, size_t &) override;
 
     // other accessors
-    boost::shared_ptr<const Geometry> geometry() const { return geom_; }
+    std::shared_ptr<const Geometry> geometry() const { return geom_; }
 
     // I/O
     void read(const eckit::Configuration &);
@@ -93,7 +100,7 @@ namespace mymodel {
    private:
     void print(std::ostream &) const;
 
-    boost::shared_ptr<const Geometry> geom_;
+    std::shared_ptr<const Geometry> geom_;
     util::DateTime time_;
     oops::Variables vars_;
   };

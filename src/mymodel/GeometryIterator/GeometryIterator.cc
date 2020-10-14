@@ -43,6 +43,15 @@ namespace mymodel {
 
 // ----------------------------------------------------------------------------
 
+  bool GeometryIterator::operator==(const GeometryIterator &) const {
+    util::abor1_cpp(
+      "GeometryIterator::operator==() needs to be implemented.",
+      __FILE__, __LINE__);
+    return false;
+  }
+
+// ----------------------------------------------------------------------------
+
   bool GeometryIterator::operator!=(const GeometryIterator &) const {
     util::abor1_cpp(
       "GeometryIterator::operator!=() needs to be implemented.",

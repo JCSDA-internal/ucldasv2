@@ -11,8 +11,7 @@
 #include <memory>
 #include <ostream>
 #include <string>
-
-#include <boost/shared_ptr.hpp>
+#include <vector>
 
 #include "eckit/mpi/Comm.h"
 
@@ -20,6 +19,7 @@
 #include "oops/util/DateTime.h"
 #include "oops/util/ObjectCounter.h"
 #include "oops/util/Printable.h"
+#include "oops/util/Serializable.h"
 
 // forward declarations
 namespace eckit {
@@ -40,6 +40,7 @@ namespace mymodel {
 
   // State class
   class State : public util::Printable,
+                public util::Serializable,
                 private util::ObjectCounter<State> {
    public:
     static const std::string classname() {return "mymodel::State";}
@@ -67,14 +68,19 @@ namespace mymodel {
     const util::DateTime & validTime() const { return time_; }
     util::DateTime & validTime() { return time_; }
 
+    // serialize (only needed for EDA?)
+    size_t serialSize() const override;
+    void serialize(std::vector<double> &) const override;
+    void deserialize(const std::vector<double> &, size_t &) override;
+
     // other accessors
-    boost::shared_ptr<const Geometry> geometry() const;
+    std::shared_ptr<const Geometry> geometry() const;
     const oops::Variables & variables() const { return vars_; }
 
    private:
     void print(std::ostream &) const;
 
-    boost::shared_ptr<const Geometry> geom_;
+    std::shared_ptr<const Geometry> geom_;
     oops::Variables vars_;
     util::DateTime time_;
   };
