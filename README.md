@@ -13,7 +13,7 @@ To get started:
    git clone https://github.com/travissluka/JEDI-modeltemplate.git <source_dir>
    ```
 2. From the source directory run the script to rename all instances
-   of `mymodel` and `MYMODEL` in the source code and file structure to whatever name you want.
+   of `ucldasv2` and `UCLDASV2` in the source code and file structure to whatever name you want.
    ```
    cd <source_dir>
    ./rename_project.sh <proj_name>

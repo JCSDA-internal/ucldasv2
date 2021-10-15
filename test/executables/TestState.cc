@@ -5,12 +5,12 @@
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
-#include "mymodel/Traits.h"
+#include "ucldasv2/Traits.h"
 #include "oops/runs/Run.h"
 #include "test/interface/State.h"
 
 int main(int argc,  char ** argv) {
   oops::Run run(argc, argv);
-  test::State<mymodel::Traits> tests;
+  test::State<ucldasv2::Traits> tests;
   return run.execute(tests);
 }
