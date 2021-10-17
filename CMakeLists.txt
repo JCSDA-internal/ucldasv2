@@ -7,9 +7,9 @@
 # UCLDASV2
 ################################################################################
 
-cmake_minimum_required( VERSION 3.8 FATAL_ERROR )
+cmake_minimum_required( VERSION 3.12 FATAL_ERROR )
 
-project( ucldasv2 C CXX Fortran)
+project( ucldasv2 VERSION 0.1 LANGUAGES C CXX Fortran)
 
 set( CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
 
@@ -29,7 +29,6 @@ ecbuild_requires_macro_version( 2.5 )
 ecbuild_declare_project()
 
 ecbuild_enable_fortran( REQUIRED )
-ecbuild_add_cxx11_flags()
 
 set( UCLDASV2_LINKER_LANGUAGE CXX )
 
@@ -38,48 +37,21 @@ set( UCLDASV2_LINKER_LANGUAGE CXX )
 # Dependencies
 ################################################################################
 # Boost Headers
-set( Boost_MINIMUM_VERSION "1.47" )
 include_directories( ${Boost_INCLUDE_DIR} )
-
-# NetCDF
+find_package( OpenMP COMPONENTS CXX Fortran )
+find_package( MPI REQUIRED COMPONENTS C CXX Fortran )
 find_package( NetCDF REQUIRED COMPONENTS Fortran )
-include_directories( ${NETCDF_INCLUDE_DIRS} )
-
-# eckit
-ecbuild_use_package( PROJECT eckit VERSION 1.1.0 REQUIRED )
-include_directories( ${ECKIT_INCLUDE_DIRS} )
-link_libraries( ${ECKIT_LIBRARIES} )
-
-# fckit
-ecbuild_use_package( PROJECT fckit VERSION 0.4.1 REQUIRED )
-include_directories( ${FCKIT_INCLUDE_DIRS} )
-
-# atlas
-ecbuild_use_package( PROJECT atlas VERSION 0.18.1 REQUIRED )
-include_directories( ${ATLAS_INCLUDE_DIRS} )
-
-# oops
-ecbuild_use_package( PROJECT oops VERSION 0.1.0 REQUIRED )
-include_directories( ${OOPS_INCLUDE_DIRS} )
-add_definitions(-DATLASIFIED=1)
-
-# saber
-ecbuild_use_package( PROJECT saber VERSION 0.0.1 REQUIRED )
-include_directories( ${SABER_INCLUDE_DIRS} )
-
-# ioda
-ecbuild_use_package( PROJECT ioda VERSION 0.1.0 REQUIRED )
-include_directories( ${IODA_INCLUDE_DIRS} )
-
-# ufo
-ecbuild_use_package( PROJECT ufo VERSION 0.1.0 REQUIRED )
-include_directories( ${UFO_INCLUDE_DIRS} )
-
-# MPI
-ecbuild_find_mpi( COMPONENTS CXX Fortran REQUIRED )
-ecbuild_include_mpi()
-link_libraries(${MPI_CXX_LIBRARIES} ${MPI_Fortran_LIBRARIES})
-
+find_package( eckit  1.11.6     REQUIRED )
+find_package( fckit  0.7.0      REQUIRED )
+find_package( oops   0.1.0      REQUIRED )
+find_package( saber  0.0.1      REQUIRED )
+find_package( ioda   0.1.0      REQUIRED )
+find_package( ufo    0.1.0      REQUIRED )
+if(OpenMP_FOUND)
+    find_package( atlas 0.20.2 REQUIRED COMPONENTS OMP OMP_Fortran )
+else()
+    find_package( atlas 0.20.2 REQUIRED )
+endif()
 
 ################################################################################
 # Export package info
