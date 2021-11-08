@@ -8,8 +8,10 @@
 #ifndef UCLDASV2_GEOMETRYITERATOR_GEOMETRYITERATOR_H_
 #define UCLDASV2_GEOMETRYITERATOR_GEOMETRYITERATOR_H_
 
+#include <iterator>
 #include <ostream>
 #include <string>
+#include "ucldasv2/Fortran.h"
 
 #include "oops/util/ObjectCounter.h"
 #include "oops/util/Printable.h"
@@ -20,6 +22,9 @@ namespace eckit {
   namespace geometry {
     class Point2;
   }
+}
+namespace ucldasv2 {
+  class Geometry;
 }
 
 // ----------------------------------------------------------------------------
@@ -33,8 +38,9 @@ namespace ucldasv2 {
     static const std::string classname() {return "ucldasv2::GeometryIterator";}
 
     // constructors / destructor
-    explicit GeometryIterator(const Geometry &, const int &, const int &);
-    GeometryIterator(const GeometryIterator&);
+    GeometryIterator(const GeometryIterator &);
+    explicit GeometryIterator(const Geometry & geom,
+                              const int & iindex = 1, const int & jindex = 1);
     ~GeometryIterator();
 
     // other operators
@@ -43,8 +49,12 @@ namespace ucldasv2 {
     GeometryIterator& operator++();
     eckit::geometry::Point2 operator*() const;
 
+    F90iter & toFortran() {return keyIter_;}
+    const F90iter & toFortran() const {return keyIter_;}
+
    private:
     void print(std::ostream &) const;
+    F90iter keyIter_;
   };
 }  // namespace ucldasv2
 

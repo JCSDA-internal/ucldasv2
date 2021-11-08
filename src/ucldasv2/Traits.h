@@ -12,7 +12,7 @@
 
 // TODO(template_impl) #include "ucldasv2/Covariance/Covariance.h"
 #include "ucldasv2/Geometry/Geometry.h"
-// TODO(template_impl) #include "ucldasv2/GeometryIterator/GeometryIterator.h"
+#include "ucldasv2/GeometryIterator/GeometryIterator.h"
 // TODO(template_impl) #include "ucldasv2/GetValues/GetValues.h"
 // TODO(template_impl) #include "ucldasv2/GetValues/LinearGetValues.h"
 // TODO(template_impl) #include "ucldasv2/Increment/Increment.h"
@@ -32,7 +32,7 @@ namespace ucldasv2 {
     // ---------------------------------------------------
 // TODO(template_impl) typedef ucldasv2::Covariance          Covariance;
     typedef ucldasv2::Geometry            Geometry;
-// TODO(template_impl) typedef ucldasv2::GeometryIterator    GeometryIterator;
+    typedef ucldasv2::GeometryIterator    GeometryIterator;
 // TODO(template_impl) typedef ucldasv2::GetValues           GetValues;
 // TODO(template_impl) typedef ucldasv2::Increment           Increment;
 // TODO(template_impl) typedef ucldasv2::LinearGetValues     LinearGetValues;

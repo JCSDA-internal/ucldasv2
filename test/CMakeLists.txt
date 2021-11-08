@@ -11,6 +11,14 @@ list( APPEND ucldasv2_test_input
   testinput/state.yml
   )
 
+set( ucldasv2_model_param
+  Data/20x20x4/ucldasv2_gridspec.nc
+  Data/20x20x4/LND_input
+)
+
+set( ucldasv2_model_namelist
+  Data/20x20x4/input.nml
+)
 
 # link the input files for the tests
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testinput)
@@ -18,8 +26,23 @@ foreach(FILENAME ${ucldasv2_test_input})
   execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
     ${CMAKE_CURRENT_SOURCE_DIR}/${FILENAME}
     ${CMAKE_CURRENT_BINARY_DIR}/${FILENAME} )
-endforeach()
+endforeach(FILENAME)
 
+# LND's resource files
+foreach(FILENAME ${ucldasv2_model_param})
+     get_filename_component(filename ${FILENAME} NAME )
+     execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
+           ${CMAKE_CURRENT_SOURCE_DIR}/${FILENAME}
+           ${CMAKE_CURRENT_BINARY_DIR}/${filename} )
+endforeach(FILENAME)
+
+# FMS input.nml that may be overwritten during the testing
+foreach(FILENAME ${ucldasv2_model_namelist})
+     get_filename_component(filename ${FILENAME} NAME )
+     execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+           ${CMAKE_CURRENT_SOURCE_DIR}/${FILENAME}
+           ${CMAKE_CURRENT_BINARY_DIR}/inputnml/${filename} )
+endforeach(FILENAME)
 
 #================================================================================
 # Tests of class interfaces

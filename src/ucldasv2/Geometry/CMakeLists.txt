@@ -1,4 +1,9 @@
 ucldasv2_target_sources(
     Geometry.cc
     Geometry.h
+    GeometryFortran.h
+    ucldasv2_geom_mod.F90
+    ucldasv2_geom.interface.F90
+    FmsInput.cc
+    FmsInput.h
 )

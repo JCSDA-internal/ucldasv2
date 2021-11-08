@@ -1,0 +1,11 @@
+! === LND_domains ===
+NIGLOBAL = 20                   !
+                                ! The total number of grid points in the
+                                ! x-direction in the physical domain.
+NJGLOBAL = 20                   !
+                                ! The total number of grid points in the
+                                ! y-direction in the physical domain.
+! === LND_verticalGrid ===
+! Parameters providing information about the vertical grid.
+NK = 4                          !   [nondim]
+                                ! The number of model layers.

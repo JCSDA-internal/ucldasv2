@@ -8,6 +8,7 @@
 
 #include "ucldasv2/Geometry/Geometry.h"
 #include "ucldasv2/GeometryIterator/GeometryIterator.h"
+#include "ucldasv2/GeometryIterator/GeometryIteratorFortran.h"
 
 #include "eckit/config/Configuration.h"
 #include "eckit/geometry/Point2.h"
@@ -20,25 +21,19 @@ namespace ucldasv2 {
 
   GeometryIterator::GeometryIterator(const Geometry& geom,
                                      const int & iindex, const int & jindex) {
-    util::abor1_cpp(
-      "GeometryIterator::GeometryIterator() needs to be implemented.",
-      __FILE__, __LINE__);
+    ucldasv2_geom_iter_setup_f90(keyIter_, geom.toFortran(), iindex, jindex);
   }
 
 // ----------------------------------------------------------------------------
 
   GeometryIterator::GeometryIterator(const GeometryIterator& iter) {
-    util::abor1_cpp(
-      "GeometryIterator::GeometryIterator() needs to be implemented.",
-      __FILE__, __LINE__);
+    ucldasv2_geom_iter_clone_f90(keyIter_, iter.toFortran());
   }
 
 // ----------------------------------------------------------------------------
 
   GeometryIterator::~GeometryIterator() {
-    util::abor1_cpp(
-      "GeometryIterator::~GeometryIterator() needs to be implemented.",
-      __FILE__, __LINE__);
+    ucldasv2_geom_iter_delete_f90(keyIter_);
   }
 
 // ----------------------------------------------------------------------------
