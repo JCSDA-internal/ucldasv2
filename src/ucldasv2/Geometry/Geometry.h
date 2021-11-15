@@ -39,7 +39,7 @@ namespace oops {
   class Variables;
 }
 
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 
 namespace ucldasv2 {
 
@@ -63,8 +63,8 @@ namespace ucldasv2 {
     const eckit::mpi::Comm & getComm() const {return comm_;}
 
     // These are needed for the GeometryIterator Interface
-    //GeometryIterator begin() const;
-    //GeometryIterator end() const;
+    // GeometryIterator begin() const;
+    // GeometryIterator end() const;
 
     atlas::FunctionSpace * atlasFunctionSpace() const;
     atlas::FieldSet * atlasFieldSet() const;

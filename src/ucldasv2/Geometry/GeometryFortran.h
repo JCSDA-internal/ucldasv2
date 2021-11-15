@@ -39,7 +39,8 @@ namespace ucldasv2 {
                                           atlas::field::FieldSetImpl *);
     void ucldasv2_geo_clone_f90(F90geom &, const F90geom &);
     void ucldasv2_geo_delete_f90(F90geom &);
-    void ucldasv2_geo_start_end_f90(const F90geom &, int &, int &, int &, int &);
+    void ucldasv2_geo_start_end_f90(const F90geom &, int &, int &, int &,
+                                int &);
   }
 }  // namespace ucldasv2
 #endif  // UCLDASV2_GEOMETRY_GEOMETRYFORTRAN_H_
