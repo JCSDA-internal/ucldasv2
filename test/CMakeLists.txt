@@ -54,11 +54,11 @@ ecbuild_add_test(
   ARGS    testinput/geometry.yml
   LIBS    ucldasv2 )
 
-# TODO(template_impl) ecbuild_add_test(
-# TODO(template_impl)   TARGET  test_ucldasv2_state
-# TODO(template_impl)   SOURCES executables/TestState.cc
-# TODO(template_impl)   ARGS    testinput/state.yml
-# TODO(template_impl)   LIBS    ucldasv2 )
+ecbuild_add_test(
+  TARGET  test_ucldasv2_state
+  SOURCES executables/TestState.cc
+  ARGS    testinput/state.yml
+  LIBS    ucldasv2 )
 
 # TODO(template_impl) ecbuild_add_test(
 # TODO(template_impl)   TARGET  test_ucldasv2_increment

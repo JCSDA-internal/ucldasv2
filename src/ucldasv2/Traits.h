@@ -19,7 +19,7 @@
 // TODO(template_impl) #include "ucldasv2/ModelAux/ModelAuxControl.h"
 // TODO(template_impl) #include "ucldasv2/ModelAux/ModelAuxCovariance.h"
 // TODO(template_impl) #include "ucldasv2/ModelAux/ModelAuxIncrement.h"
-// TODO(template_impl) #include "ucldasv2/State/State.h"
+#include "ucldasv2/State/State.h"
 
 namespace ucldasv2 {
 
@@ -39,7 +39,7 @@ namespace ucldasv2 {
 // TODO(template_impl) typedef ucldasv2::ModelAuxControl     ModelAuxControl;
 // TODO(template_impl) typedef ucldasv2::ModelAuxCovariance  ModelAuxCovariance;
 // TODO(template_impl) typedef ucldasv2::ModelAuxIncrement   ModelAuxIncrement;
-// TODO(template_impl) typedef ucldasv2::State               State;
+    typedef ucldasv2::State               State;
   };
 }  // namespace ucldasv2
 

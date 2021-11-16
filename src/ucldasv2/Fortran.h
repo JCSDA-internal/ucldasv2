@@ -10,12 +10,17 @@
 
 namespace ucldasv2 {
 
-  // Geometry key type
+  // key type for ucldasv2_geom_mod::ucldasv2_geom
   typedef int F90geom;
-  // Geometry iterator key type
+
+  // key type for ucldasv2_geom_iter_mod::ucldasv2_geom_iter
   typedef int F90iter;
-  // Model key type
+
+  // key type for ucldasv2_model_mod::ucldasv2_model
   typedef int F90model;
-  //
+
+  // key type for ucldasv2_fields_mod::ucldasv2_fields
+  typedef int F90flds;
+
 }  // namespace ucldasv2
 #endif  // UCLDASV2_FORTRAN_H_
