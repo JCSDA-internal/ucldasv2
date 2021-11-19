@@ -10,12 +10,9 @@
 #include "atlas/grid.h"
 #include "atlas/util/Config.h"
 
-#include "ucldasv2/Geometry/Geometry.h"
-#include "ucldasv2/GeometryIterator/GeometryIterator.h"
-
 #include "eckit/config/YAMLConfiguration.h"
 
-#include "oops/util/abor1_cpp.h"
+#include "ucldasv2/Geometry/Geometry.h"
 
 namespace ucldasv2 {
 
@@ -46,9 +43,7 @@ namespace ucldasv2 {
     atlasFieldSet_.reset(new atlas::FieldSet());
     ucldasv2_geo_fill_atlas_fieldset_f90(keyGeom_, atlasFieldSet_->get());
   }
-
-// ----------------------------------------------------------------------------
-
+  // ----------------------------------------------------------------------------
   Geometry::Geometry(const Geometry & other)
     : comm_(other.comm_),
       fmsinput_(other.fmsinput_) {
@@ -64,41 +59,34 @@ namespace ucldasv2 {
       atlasFieldSet_->add(atlasField);
     }
   }
-
-// ----------------------------------------------------------------------------
-
+  // ----------------------------------------------------------------------------
   Geometry::~Geometry() {
     ucldasv2_geo_delete_f90(keyGeom_);
   }
-
-// ----------------------------------------------------------------------------
-
+  // ----------------------------------------------------------------------------
   GeometryIterator Geometry::begin() const {
+    // return start of the geometry on this mpi tile
     int ist, iend, jst, jend;
     ucldasv2_geo_start_end_f90(keyGeom_, ist, iend, jst, jend);
     return GeometryIterator(*this, ist, jst);
   }
-
-// ----------------------------------------------------------------------------
-
+  // ----------------------------------------------------------------------------
   GeometryIterator Geometry::end() const {
     // return end of the geometry on this mpi tile
     // decided to return index out of bounds for the iterator loops to work
     return GeometryIterator(*this, -1, -1);
   }
-
-// ----------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------
+  std::vector<size_t> Geometry::variableSizes(
+      const oops::Variables & vars) const {
+    std::vector<size_t> lvls(vars.size());
+    ucldasv2_geo_get_num_levels_f90(toFortran(), vars, lvls.size(), lvls.data());
+    return lvls;
+  }
+  // ----------------------------------------------------------------------------
   void Geometry::print(std::ostream & os) const {
     // TODO(Travis): Implement this correctly.
   }
-
-// ----------------------------------------------------------------------------
-  std::vector<double> Geometry::verticalCoord(std::string &) const {
-    util::abor1_cpp("Geometry::verticalCoord() needs to be implemented.",
-                    __FILE__, __LINE__);
-    return {};
-  }
-
   // -----------------------------------------------------------------------------
   atlas::FunctionSpace * Geometry::atlasFunctionSpace() const {
     return atlasFunctionSpace_.get();
@@ -107,7 +95,5 @@ namespace ucldasv2 {
   atlas::FieldSet * Geometry::atlasFieldSet() const {
     return atlasFieldSet_.get();
   }
-
-// ----------------------------------------------------------------------------
-
+  // ----------------------------------------------------------------------------
 }  // namespace ucldasv2

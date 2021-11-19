@@ -15,11 +15,9 @@ function(ucldasv2_target_sources)
   endforeach()
 endfunction()
 
-# the main library for this interface
+# the main ucldasv2 library for this interface
 ecbuild_add_library( TARGET   ucldasv2
                      SOURCES  ${ucldasv2_src_files}
-                     LIBS     ${NETCDF_LIBRARIES}
-                              eckit eckit_mpi fckit oops ioda ufo fms
                      INSTALL_HEADERS LISTED
                      LINKER_LANGUAGE ${UCLDASV2_LINKER_LANGUAGE}
                     )
@@ -32,6 +30,8 @@ target_compile_features( ucldasv2 PUBLIC cxx_std_11 )
 
 target_link_libraries( ucldasv2 PUBLIC NetCDF::NetCDF_Fortran )
 target_link_libraries( ucldasv2 PUBLIC fckit )
+target_link_libraries( ucldasv2 PUBLIC atlas )
+target_link_libraries( ucldasv2 PUBLIC atlas_f )
 target_link_libraries( ucldasv2 PUBLIC fms )
 target_link_libraries( ucldasv2 PUBLIC ucland )
 target_link_libraries( ucldasv2 PUBLIC oops )
@@ -41,14 +41,15 @@ target_link_libraries( ucldasv2 PUBLIC ufo )
 
 # add source code in the subdirectories
 # TODO(template_impl) add_subdirectory(Covariance)
+add_subdirectory(Fields)
 add_subdirectory(Geometry)
 add_subdirectory(GeometryIterator)
 # TODO(template_impl) add_subdirectory(GetValues)
-# TODO(template_impl) add_subdirectory(Increment)
+add_subdirectory(Increment)
 add_subdirectory(Model)
 # TODO(template_impl) add_subdirectory(ModelAux)
 add_subdirectory(State)
-add_subdirectory(Fields)
+add_subdirectory(Utils)
 
 ## Fortran modules
 set(MODULE_DIR ${PROJECT_NAME}/module)

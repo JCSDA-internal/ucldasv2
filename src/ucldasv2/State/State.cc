@@ -9,15 +9,16 @@
 #include <vector>
 
 #include "ucldasv2/Geometry/Geometry.h"
+#include "ucldasv2/Increment/Increment.h"
 #include "ucldasv2/State/State.h"
 #include "ucldasv2/State/StateFortran.h"
 
 #include "eckit/config/Configuration.h"
+#include "eckit/exception/Exceptions.h"
 
 #include "oops/base/Variables.h"
 #include "oops/util/DateTime.h"
 #include "oops/util/Logger.h"
-#include "oops/util/abor1_cpp.h"
 
 #include "ufo/GeoVaLs.h"
 #include "ufo/Locations.h"
@@ -26,9 +27,17 @@ using oops::Log;
 
 namespace ucldasv2 {
 
-// ----------------------------------------------------------------------------
-/// Constructor, destructor
-// ----------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------
+  /// Constructor, destructor
+  // ----------------------------------------------------------------------------
+  State::State(const Geometry & geom, const oops::Variables & vars,
+               const util::DateTime & vt)
+    : time_(vt), vars_(vars), geom_(new Geometry(geom))
+  {
+    ucldasv2_state_create_f90(keyFlds_, geom_->toFortran(), vars_);
+    Log::trace() << "State::State created." << std::endl;
+  }
+  // ----------------------------------------------------------------------------
   State::State(const Geometry & geom, const eckit::Configuration & conf)
     : time_(),
       vars_(conf, "state variables"),
@@ -49,57 +58,43 @@ namespace ucldasv2 {
     Log::trace() << "State::State created and read in." << std::endl;
 
   }
-
-// ----------------------------------------------------------------------------
-
-  State::State(const Geometry & geom, const oops::Variables & vars,
-               const util::DateTime & time)
-    : geom_(new Geometry(geom)), time_(time), vars_(vars) {
-    util::abor1_cpp("State::State() needs to be implemented.",
-                    __FILE__, __LINE__);
-  }
-
-// ----------------------------------------------------------------------------
-
+  // ----------------------------------------------------------------------------
   State::State(const Geometry & geom, const State & other)
-    : geom_(new Geometry(geom)), time_(other.time_), vars_(other.vars_) {
-    // Change state resolution
-    util::abor1_cpp("State::State() needs to be implemented.",
-                    __FILE__, __LINE__);
+    : vars_(other.vars_), time_(other.time_), geom_(new Geometry(geom))
+  {
+    ucldasv2_state_create_f90(keyFlds_, geom_->toFortran(), vars_);
+    ucldasv2_state_change_resol_f90(toFortran(), other.keyFlds_);
+    Log::trace() << "State::State created by interpolation." << std::endl;
   }
-
-// ----------------------------------------------------------------------------
-
+  // ----------------------------------------------------------------------------
   State::State(const State & other)
-    : geom_(new Geometry(*other.geom_)), time_(other.time_),
-      vars_(other.vars_) {
-    util::abor1_cpp("State::State() needs to be implemented.",
-                     __FILE__, __LINE__);
+    : vars_(other.vars_), time_(other.time_), geom_(new Geometry(*other.geom_))
+  {
+    ucldasv2_state_create_f90(keyFlds_, geom_->toFortran(), vars_);
+    ucldasv2_state_copy_f90(toFortran(), other.toFortran());
+    Log::trace() << "State::State copied." << std::endl;
   }
-
-// ----------------------------------------------------------------------------
-
+  // ----------------------------------------------------------------------------
   State::~State() {
     ucldasv2_state_delete_f90(toFortran());
     Log::trace() << "State::State destructed." << std::endl;
   }
-
-// ----------------------------------------------------------------------------
-
+  // ----------------------------------------------------------------------------
   State & State::operator+=(const Increment & dx)
   {
-    util::abor1_cpp("State::operator+=(Increment) needs to be implemented.",
-                    __FILE__, __LINE__);
+    ASSERT(validTime() == dx.validTime());
+    // Interpolate increment to analysis grid
+    Increment dx_hr(*geom_, dx);
+
+    // Add increment to background state
+    ucldasv2_state_add_incr_f90(toFortran(), dx_hr.toFortran());
     return *this;
   }
-
-// ----------------------------------------------------------------------------
-
+  // ----------------------------------------------------------------------------
   void State::accumul(const double & zz, const State & xx) {
     ucldasv2_state_axpy_f90(toFortran(), zz, xx.toFortran());
   }
-
-// ----------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------
 
   double State::norm() const {
     double zz = 0.0;
@@ -161,19 +156,24 @@ namespace ucldasv2 {
     // Serialize the date and time
     time_.serialize(vect);
   }
+  // ----------------------------------------------------------------------------
+  void State::deserialize(const std::vector<double> & vect, size_t & index) {
+    // Deserialize the field
+    ucldasv2_state_deserialize_f90(toFortran(), geom_->toFortran(), vect.size(),
+                               vect.data(), index);
 
-// ----------------------------------------------------------------------------
+    // Use magic value to validate deserialization
+    ASSERT(vect.at(index) == SerializeCheckValue);
+    ++index;
 
-  void State::deserialize(const std::vector<double> & vec, size_t & s) {
-    util::abor1_cpp("State::deserialize() needs to be implemented.",
-                     __FILE__, __LINE__);
+    // Deserialize the date and time
+    time_.deserialize(vect, index);
   }
-
-// ----------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------
 
   std::shared_ptr<const Geometry> State::geometry() const {return geom_;}
 
-// ----------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------
 
   void State::print(std::ostream & os) const {
     os << std::endl << "  Valid time: " << validTime();

@@ -11,6 +11,10 @@ list( APPEND ucldasv2_test_input
   testinput/state.yml
   )
 
+set( ucldasv2_data_files
+  Data/fields_metadata.yml
+)
+
 set( ucldasv2_model_param
   Data/20x20x4/ucldasv2_gridspec.nc
   Data/20x20x4/LND_input
@@ -18,6 +22,10 @@ set( ucldasv2_model_param
 
 set( ucldasv2_model_namelist
   Data/20x20x4/input.nml
+)
+
+set( ucldasv2_model_restarts
+  Data/20x20x4/INPUT/lnd.res.nc
 )
 
 # link the input files for the tests
@@ -28,13 +36,26 @@ foreach(FILENAME ${ucldasv2_test_input})
     ${CMAKE_CURRENT_BINARY_DIR}/${FILENAME} )
 endforeach(FILENAME)
 
+# Create Data directory for model input and symlink all files
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/INPUT)
+foreach(FILENAME ${ucldasv2_model_restarts})
+     get_filename_component(filename ${FILENAME} NAME )
+     execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
+           ${CMAKE_CURRENT_SOURCE_DIR}/${FILENAME}
+           ${CMAKE_CURRENT_BINARY_DIR}/INPUT/${filename} )
+endforeach(FILENAME)
+install(FILES ${ucldasv2_model_restarts}
+        DESTINATION ${INSTALL_DATA_DIR}/testdata/20x20x4/INPUT/ )
+
 # LND's resource files
-foreach(FILENAME ${ucldasv2_model_param})
+foreach(FILENAME ${ucldasv2_model_param} ${ucldasv2_data_files})
      get_filename_component(filename ${FILENAME} NAME )
      execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
            ${CMAKE_CURRENT_SOURCE_DIR}/${FILENAME}
            ${CMAKE_CURRENT_BINARY_DIR}/${filename} )
 endforeach(FILENAME)
+install(FILES ${ucldasv2_data_files}
+        DESTINATION ${INSTALL_DATA_DIR}/testdata )
 
 # FMS input.nml that may be overwritten during the testing
 foreach(FILENAME ${ucldasv2_model_namelist})

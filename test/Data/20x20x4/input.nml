@@ -5,5 +5,12 @@
         restart_output_dir = 'RESTART/',
         parameter_filename = 'LND_input' /
 
- &diag_manager_nml
- /
+ &fms_io_nml
+      max_files_w=100
+      checksum_required=.false.
+/
+
+ &fms_nml
+       clock_grain='MODULE'
+       domains_stack_size = 2000000
+       clock_flags='SYNC' /

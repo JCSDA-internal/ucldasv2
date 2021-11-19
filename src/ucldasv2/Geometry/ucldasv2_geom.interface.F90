@@ -7,23 +7,27 @@
 module ucldasv2_geom_mod_c
 
 use atlas_module, only: atlas_fieldset, atlas_functionspace_pointcloud
-use iso_c_binding
 use fckit_configuration_module, only: fckit_configuration
 use fckit_mpi_module,           only: fckit_mpi_comm
+use iso_c_binding
+use oops_variables_mod, only: oops_variables
+
+! ucldasv2 modules
 use ucldasv2_geom_mod, only: ucldasv2_geom
+use ucldasv2_fields_metadata_mod, only : ucldasv2_field_metadata
+
 
 implicit none
-
 private
-public :: ucldasv2_geom_registry
+
 
 #define LISTED_TYPE ucldasv2_geom
 
 !> Linked list interface - defines registry_t type
 #include "oops/util/linkedList_i.f"
 
-!> Global registry
-type(registry_t) :: ucldasv2_geom_registry
+!> Global registry for ucldasv2_geom instances
+type(registry_t), public :: ucldasv2_geom_registry
 
 ! ------------------------------------------------------------------------------
 contains
@@ -32,10 +36,10 @@ contains
 !> Linked list implementation
 #include "oops/util/linkedList_c.f"
 
-! ------------------------------------------------------------------------------
-!> Setup geometry object
-subroutine c_ucldasv2_geo_setup(c_key_self, c_conf, c_comm) bind(c,name='ucldasv2_geo_setup_f90')
 
+! ------------------------------------------------------------------------------
+!> C++ interface for ucldasv2_geom_mod::ucldasv2_geom::init()
+subroutine ucldasv2_geo_setup_c(c_key_self, c_conf, c_comm) bind(c,name='ucldasv2_geo_setup_f90')
   integer(c_int),  intent(inout) :: c_key_self
   type(c_ptr),        intent(in) :: c_conf
   type(c_ptr), value, intent(in) :: c_comm
@@ -47,14 +51,12 @@ subroutine c_ucldasv2_geo_setup(c_key_self, c_conf, c_comm) bind(c,name='ucldasv
   call ucldasv2_geom_registry%get(c_key_self,self)
 
   call self%init(fckit_configuration(c_conf), fckit_mpi_comm(c_comm) )
-
-end subroutine c_ucldasv2_geo_setup
+end subroutine ucldasv2_geo_setup_c
 
 
 ! --------------------------------------------------------------------------------------------------
-!> Set ATLAS lonlat fieldset
-subroutine c_ucldasv2_geo_set_atlas_lonlat(c_key_self, c_afieldset) bind(c,name='ucldasv2_geo_set_atlas_lonlat_f90')
-
+!> C++ interface for ucldasv2_geom_mod::ucldasv2_geom::set_atlas_lonlat()
+subroutine ucldasv2_geo_set_atlas_lonlat_c(c_key_self, c_afieldset) bind(c,name='ucldasv2_geo_set_atlas_lonlat_f90')
   integer(c_int), intent(in) :: c_key_self
   type(c_ptr), intent(in), value :: c_afieldset
 
@@ -65,14 +67,13 @@ subroutine c_ucldasv2_geo_set_atlas_lonlat(c_key_self, c_afieldset) bind(c,name=
   afieldset = atlas_fieldset(c_afieldset)
 
   call self%set_atlas_lonlat(afieldset)
+end subroutine ucldasv2_geo_set_atlas_lonlat_c
 
-end subroutine c_ucldasv2_geo_set_atlas_lonlat
 
 ! --------------------------------------------------------------------------------------------------
-!> Set ATLAS functionspace pointer
-subroutine c_ucldasv2_geo_set_atlas_functionspace_pointer(c_key_self,c_afunctionspace) &
- & bind(c,name='ucldasv2_geo_set_atlas_functionspace_pointer_f90')
-
+!> C++ interface to get atlas functionspace pointr from ucldasv2_geom_mod::ucldasv2_geom
+subroutine ucldasv2_geo_set_atlas_functionspace_pointer_c(c_key_self,c_afunctionspace) &
+  bind(c,name='ucldasv2_geo_set_atlas_functionspace_pointer_f90')
   integer(c_int), intent(in)     :: c_key_self
   type(c_ptr), intent(in), value :: c_afunctionspace
 
@@ -81,13 +82,13 @@ subroutine c_ucldasv2_geo_set_atlas_functionspace_pointer(c_key_self,c_afunction
   call ucldasv2_geom_registry%get(c_key_self,self)
 
   self%afunctionspace = atlas_functionspace_pointcloud(c_afunctionspace)
+end subroutine ucldasv2_geo_set_atlas_functionspace_pointer_c
 
-end subroutine c_ucldasv2_geo_set_atlas_functionspace_pointer
 
 ! --------------------------------------------------------------------------------------------------
-!> Fill ATLAS fieldset
-subroutine c_ucldasv2_geo_fill_atlas_fieldset(c_key_self, c_afieldset) &
- & bind(c,name='ucldasv2_geo_fill_atlas_fieldset_f90')
+!> C++ interface for ucldasv2_geom_mod::ucldasv2_geom::fill_atlas_fieldset()
+subroutine ucldasv2_geo_fill_atlas_fieldset_c(c_key_self, c_afieldset) &
+  bind(c,name='ucldasv2_geo_fill_atlas_fieldset_f90')
 
   integer(c_int),     intent(in) :: c_key_self
   type(c_ptr), value, intent(in) :: c_afieldset
@@ -99,13 +100,11 @@ subroutine c_ucldasv2_geo_fill_atlas_fieldset(c_key_self, c_afieldset) &
   afieldset = atlas_fieldset(c_afieldset)
 
   call self%fill_atlas_fieldset(afieldset)
-
-end subroutine c_ucldasv2_geo_fill_atlas_fieldset
+end subroutine ucldasv2_geo_fill_atlas_fieldset_c
 
 ! ------------------------------------------------------------------------------
-!> Clone geometry object
-subroutine c_ucldasv2_geo_clone(c_key_self, c_key_other) bind(c,name='ucldasv2_geo_clone_f90')
-
+!> C++ interface for ucldasv2_geom_mod::ucldasv2_geom::clone()
+subroutine ucldasv2_geo_clone_c(c_key_self, c_key_other) bind(c,name='ucldasv2_geo_clone_f90')
   integer(c_int), intent(inout) :: c_key_self
   integer(c_int), intent(in)    :: c_key_other
 
@@ -116,13 +115,12 @@ subroutine c_ucldasv2_geo_clone(c_key_self, c_key_other) bind(c,name='ucldasv2_g
   call ucldasv2_geom_registry%get(c_key_other, other )
 
   call self%clone(other)
+end subroutine ucldasv2_geo_clone_c
 
-end subroutine c_ucldasv2_geo_clone
 
 ! ------------------------------------------------------------------------------
-!> Geometry destructor
-subroutine c_ucldasv2_geo_delete(c_key_self) bind(c,name='ucldasv2_geo_delete_f90')
-
+!> C++ interface for ucldasv2_geom_mod::ucldasv2_geom::end()
+subroutine ucldasv2_geo_delete_c(c_key_self) bind(c,name='ucldasv2_geo_delete_f90')
   integer(c_int), intent(inout) :: c_key_self
 
   type(ucldasv2_geom), pointer :: self
@@ -130,13 +128,12 @@ subroutine c_ucldasv2_geo_delete(c_key_self) bind(c,name='ucldasv2_geo_delete_f9
   call ucldasv2_geom_registry%get(c_key_self, self)
   call self%end()
   call ucldasv2_geom_registry%remove(c_key_self)
+end subroutine ucldasv2_geo_delete_c
 
-end subroutine c_ucldasv2_geo_delete
 
 ! ------------------------------------------------------------------------------
-!> return begin and end of local geometry
-subroutine c_ucldasv2_geo_start_end(c_key_self, ist, iend, jst, jend) bind(c, name='ucldasv2_geo_start_end_f90')
-
+!> C++ interface to return begin and end of local geometry in ucldasv2_geom
+subroutine ucldasv2_geo_start_end_c(c_key_self, ist, iend, jst, jend) bind(c, name='ucldasv2_geo_start_end_f90')
   integer(c_int), intent( in) :: c_key_self
   integer(c_int), intent(out) :: ist, iend, jst, jend
 
@@ -147,7 +144,51 @@ subroutine c_ucldasv2_geo_start_end(c_key_self, ist, iend, jst, jend) bind(c, na
   iend = self%iec
   jst  = self%jsc
   jend = self%jec
+end subroutine ucldasv2_geo_start_end_c
 
-end subroutine c_ucldasv2_geo_start_end
+
+! ------------------------------------------------------------------------------
+!> C++ interface to get number of levels for ucldasv2_geom
+subroutine ucldasv2_geo_get_num_levels_c(c_key_self, c_vars, c_levels_size, c_levels) &
+           bind(c, name='ucldasv2_geo_get_num_levels_f90')
+  integer(c_int),     intent(in)  :: c_key_self
+  type(c_ptr), value, intent(in)  :: c_vars
+  integer(c_size_t),  intent(in)  :: c_levels_size
+  integer(c_size_t),  intent(out) :: c_levels(c_levels_size)
+
+  type(ucldasv2_geom), pointer :: self
+  type(oops_variables)     :: vars
+  integer :: i
+  character(len=:), allocatable :: field_name
+  type(ucldasv2_field_metadata) :: field
+
+  call ucldasv2_geom_registry%get(c_key_self, self)
+  vars = oops_variables(c_vars)
+
+  do i = 1,vars%nvars()
+    field_name = vars%variable(i)
+    field = self%fields_metadata%get(field_name)
+    select case(field%levels)
+    case ("1")
+      c_levels(i) = 1
+    case ("full_lnd")
+      if (field_name == field%getval_name_surface) then
+        c_levels(i) = 1
+      else
+        c_levels(i) = self%nsoil
+      end if
+    case ("full_snw")
+      if (field_name == field%getval_name_surface) then
+        c_levels(i) = 1
+      else
+        c_levels(i) = self%nsnow
+      end if
+    case default
+      call abor1_ftn('ERROR in ucldasv2_geo_get_num_levels_c, unknown "levels" '//field%levels)
+    end select
+  end do
+end subroutine ucldasv2_geo_get_num_levels_c
+
+! ------------------------------------------------------------------------------
 
 end module ucldasv2_geom_mod_c

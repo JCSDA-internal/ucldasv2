@@ -1,0 +1,33 @@
+# --------------------------------------------------------------------------------------------------
+# Field metadata for UCLDASV2. Each field can contain the following information:
+#
+# name:                 Internal name used by ucldasv2 code and config files
+# masked:               use land mask if true  (Default: true)
+# levels:               "1" or "full_lnd"   (Default: 1)
+# getval_name:          variable name expected by GetValues  (Default: <name>)
+# getval_name_surface:  GetValues variable name for 2D surface of a 3D field (Default: <unused>)
+# io_file:              The restart file domain "lnd" or "snw" (Default: <unused>)
+# io_name:              The variable name used in the restart IO (Default: <unused>)
+# dummy_atm:            Don't use this. (It's a temporary hack for CRTM stuff)
+# --------------------------------------------------------------------------------------------------
+
+# --------------------------------------------------------------------------------------------------
+# snow state variables
+# --------------------------------------------------------------------------------------------------
+- name: snowd
+  getval name surface: snow_depth           # note: not accurate, should be "sum" not "surface"
+  io file: lnd
+  io name: snwdph
+  property: positive_definite
+
+# --------------------------------------------------------------------------------------------------
+# built-in derived variables that you don't need to worry about
+# --------------------------------------------------------------------------------------------------
+- name: elevation
+  masked: true
+
+# --------------------------------------------------------------------------------------------------
+# Dummy fields that aren't actually used.
+# Needed for the CRTM hack to work
+# these should all be removed at some point when coupled hofx is implemented correctly
+# --------------------------------------------------------------------------------------------------

@@ -31,6 +31,7 @@ use horiz_interp_spherical_mod, only : horiz_interp_spherical, horiz_interp_sphe
 use mpp_domains_mod, only : mpp_update_domains
 
 ! UCLDASV2 modules
+use ucldasv2_fields_metadata_mod, only : ucldasv2_field_metadata
 use ucldasv2_geom_mod, only : ucldasv2_geom
 
 implicit none
@@ -72,6 +73,11 @@ type, public :: ucldasv2_field
   !!
   !! \note This should never remain \c null() after initialization of the class.
   real(kind=kind_real),     pointer :: lat(:,:) => null()
+
+  !> Parameters for the field as determined by the configuration yaml.
+  !!
+  !! see ucldasv2_fields_metadata_mod::ucldasv2_field_metadata
+  type(ucldasv2_field_metadata)         :: metadata
 
 contains
 
@@ -178,7 +184,7 @@ contains
   procedure :: write_file=> ucldasv2_fields_write_file
 
   !> \copybrief ucldasv2_fields_write_rst \see ucldasv2_fields_write_rst
-  !procedure :: write_rst => ucldasv2_fields_write_rst
+  procedure :: write_rst => ucldasv2_fields_write_rst
 
   !> \}
 
@@ -336,14 +342,39 @@ subroutine ucldasv2_fields_init_vars(self, vars)
   do i=1,size(vars)
     self%fields(i)%name = trim(vars(i))
 
+    ! get the field metadata parameters that are read in from a config file
+    self%fields(i)%metadata = self%geom%fields_metadata%get(self%fields(i)%name)
+
     ! Set grid location and masks
-    self%fields(i)%lon => self%geom%lon
-    self%fields(i)%lat => self%geom%lat
-    self%fields(i)%mask => self%geom%mask2d
+    select case(self%fields(i)%metadata%grid)
+    case ('h')
+      self%fields(i)%lon => self%geom%lon
+      self%fields(i)%lat => self%geom%lat
+      if (self%fields(i)%metadata%masked) &
+          self%fields(i)%mask => self%geom%mask2d
+    case default
+      call abor1_ftn('ucldasv2_fields::create(): Illegal grid '// &
+                     self%fields(i)%metadata%grid // &
+                     ' given for ' // self%fields(i)%name)
+    end select
 
     ! determine number of levels
-    nz = 1
-    !  nz = self%geom%nsnow
+    if (self%fields(i)%name == self%fields(i)%metadata%getval_name_surface) then
+      ! if this field is a surface getval, override the number of levels with 1
+      nz = 1
+    else
+      select case(self%fields(i)%metadata%levels)
+      case ('full_lnd')
+        nz = self%geom%nsoil
+      case ('full_snw')
+        nz = self%geom%nsnow
+      case ('1') ! TODO, generalize to work with any number?
+        nz = 1
+      case default
+        call abor1_ftn('ucldasv2_fields::create(): Illegal levels '//self%fields(i)%metadata%levels// &
+                       ' given for ' // self%fields(i)%name)
+      end select
+    endif
 
     ! allocate space
     self%fields(i)%nz = nz
@@ -675,10 +706,7 @@ end subroutine ucldasv2_fields_dotprod
 !!    - "date" : (required if read_from_file == 0)
 !!    - "basename" : The common part of the path prepended to the following
 !!       \c *_filename parameters
-!!    - "ocn_filename" : ocean filename
-!!    - "sfc_filename" : (optional) surface field filename
-!!    - "ice_filename" : (optional) ice field filename
-!!    - "wav_filename" : (optoinal) wave field filename
+!!    - "lnd_filename" : land filename
 !! \param[inout] vdate : If fields are being invented (read_from_file == 0),
 !!    the \p vdate is used as the valid date of the fields. If the fields are
 !!    being read in as a state (read_from_file == 1), \p vdate is set the the
@@ -694,24 +722,32 @@ subroutine ucldasv2_fields_read(self, f_conf, vdate)
   character(len=:), allocatable :: basename, incr_filename
   integer :: iread = 0
   integer :: ii
-  logical :: vert_remap=.false.
-  character(len=max_string_length) :: remap_filename
-  real(kind=kind_real), allocatable :: h_common(:,:,:)    !< layer thickness to remap to
+  type(restart_file_type), target :: land_restart
+  type(restart_file_type), pointer :: restart
   integer :: idr
   integer :: isd, ied, jsd, jed
   integer :: isc, iec, jsc, jec
   integer :: i, j, nz, n
   character(len=:), allocatable :: str
-  type(ucldasv2_field), pointer :: field, field2, mld, layer_depth
+  type(ucldasv2_field), pointer :: field, field2, snowd, mld, layer_depth
 
   if ( f_conf%has("read_from_file") ) &
       call f_conf%get_or_die("read_from_file", iread)
+
+  call self%get("snowd", snowd)
 
   ! Get Indices for data domain and allocate common layer depth array
   isd = self%geom%isd ; ied = self%geom%ied
   jsd = self%geom%jsd ; jed = self%geom%jed
 
-  nz = 1
+  nz = snowd%nz
+
+  ! iread = 0: Invent state
+  if (iread==0) then
+     call self%zeros()
+     call f_conf%get_or_die("date", str)
+     call datetime_set(str, vdate)
+  end if
 
   ! iread = 0: Invent state
   if (iread==0) then
@@ -735,9 +771,29 @@ subroutine ucldasv2_fields_read(self, f_conf, vdate)
 
     ! built-in variables
     do i=1,size(self%fields)
+      if(self%fields(i)%metadata%io_name /= "") then
       ! which file are we reading from?
-      filename = lnd_filename
+        select case(self%fields(i)%metadata%io_file)
+        case ('lnd')
+          filename = lnd_filename
+          restart => land_restart
+        case default
+          call abor1_ftn('read_file(): illegal io_file: '//self%fields(i)%metadata%io_file)
+        end select
+
+      ! setup to read
+        if (self%fields(i)%nz == 1) then
+          idr = register_restart_field(restart, filename, self%fields(i)%metadata%io_name, &
+              self%fields(i)%val(:,:,1), domain=self%geom%Domain%mpp_domain)
+        else
+          idr = register_restart_field(restart, filename, self%fields(i)%metadata%io_name, &
+              self%fields(i)%val(:,:,:), domain=self%geom%Domain%mpp_domain)
+        end if
+      end if
     end do
+
+    call restore_state(land_restart, directory='')
+    call free_restart_type(land_restart)
 
     call fms_io_exit()
 
@@ -888,6 +944,59 @@ end subroutine ucldasv2_fields_write_file
 
 
 ! ------------------------------------------------------------------------------
+!> Save ucldasv2 fields in a restart format
+!!
+!! TODO this can be generalized even more
+!! \relates ucldasv2_fields_mod::ucldasv2_fields
+subroutine ucldasv2_fields_write_rst(self, f_conf, vdate)
+  class(ucldasv2_fields),    intent(inout) :: self      !< Fields
+  type(fckit_configuration), intent(in)    :: f_conf   !< Configuration
+  type(datetime),            intent(inout) :: vdate    !< DateTime
+
+  integer, parameter :: max_string_length=800
+  character(len=max_string_length) :: lnd_filename, filename
+  type(restart_file_type), target :: land_restart
+  type(restart_file_type), pointer :: restart
+  integer :: idr, i
+  type(ucldasv2_field), pointer :: field
+
+  call fms_io_init()
+
+  ! filenames
+  lnd_filename = ucldasv2_genfilename(f_conf,max_string_length,vdate,"lnd")
+
+  ! built in variables
+  do i=1,size(self%fields)
+    field => self%fields(i)
+    if (len_trim(field%metadata%io_file) /= 0) then
+      ! which file are we writing to
+      select case(field%metadata%io_file)
+      case ('lnd')
+        filename = lnd_filename
+        restart => land_restart
+      case default
+        call abor1_ftn('ucldasv2_write_restart(): illegal io_file: '//field%metadata%io_file)
+      end select
+
+      ! write
+      if (field%nz == 1) then
+        idr = register_restart_field( restart, filename, field%metadata%io_name, &
+          field%val(:,:,1), domain=self%geom%Domain%mpp_domain)
+      else
+        idr = register_restart_field( restart, filename, field%metadata%io_name, &
+        field%val(:,:,:), domain=self%geom%Domain%mpp_domain)
+      end if
+    end if
+  end do
+
+  ! write out and cleanup
+  call save_restart(land_restart, directory='')
+  call free_restart_type(land_restart)
+  call fms_io_exit()
+
+end subroutine ucldasv2_fields_write_rst
+
+! ------------------------------------------------------------------------------
 !> Colocate by interpolating from one c-grid location to another.
 !!
 !! \warning only works on the "h" grid currently (not the "u" or "v" grid)
@@ -905,13 +1014,6 @@ subroutine ucldasv2_fields_colocate(self, cgridlocout)
 
   ! Associate lon_out and lat_out according to cgridlocout
   select case(cgridlocout)
-  ! TODO: Test colocation to u and v grid
-  !case ('u')
-  !  lon_out => self%geom%lonu
-  !  lat_out => self%geom%latu
-  !case ('v')
-  !  lon_out => self%geom%lonv
-  !  lat_out => self%geom%latv
   case ('h')
     lon_out => self%geom%lon
     lat_out => self%geom%lat
@@ -944,9 +1046,12 @@ subroutine ucldasv2_fields_colocate(self, cgridlocout)
     end do
 
     ! Update c-grid location
-    !self%fields(i)%metadata%grid = cgridlocout
-    self%fields(i)%lon => self%geom%lon
-    self%fields(i)%lat => self%geom%lat
+    self%fields(i)%metadata%grid = cgridlocout
+    select case(cgridlocout)
+    case ('h')
+      self%fields(i)%lon => self%geom%lon
+      self%fields(i)%lat => self%geom%lat
+    end select
 
  end do
  call horiz_interp_spherical_del(interp2d)
@@ -1052,6 +1157,74 @@ subroutine fldinfo(fld, mask, info)
   info(2) = maxval(tmp(2,:))
   info(3) = sum(   tmp(3,:))
 end subroutine fldinfo
+
+! ------------------------------------------------------------------------------
+!> Generate filename (based on oops/qg)
+!!
+!! The configuration \p f_conf is expected to provide the following
+!! - "datadir" : the directory the filenames should be prefixed with
+!! - "exp" : experiment name
+!! - "type" : one of "fc", "an", "incr", "ens"
+!! - "member" : required only if "type == ens"
+function ucldasv2_genfilename (f_conf,length,vdate,domain_type)
+  type(fckit_configuration),  intent(in) :: f_conf
+  integer,                    intent(in) :: length
+  type(datetime),             intent(in) :: vdate
+  character(len=3), optional, intent(in) :: domain_type
+
+  character(len=length)                  :: ucldasv2_genfilename
+  character(len=length) :: fdbdir, expver, typ, validitydate, referencedate, sstep, &
+       & prefix, mmb
+  type(datetime) :: rdate
+  type(duration) :: step
+  integer lenfn
+  character(len=:), allocatable :: str
+
+  call f_conf%get_or_die("datadir", str)
+  fdbdir = str
+  call f_conf%get_or_die("exp", str)
+  expver = str
+  call f_conf%get_or_die("type", str)
+  typ = str
+
+  if (present(domain_type)) then
+     expver = trim(domain_type)//"."//expver
+  else
+     expver = "lnd.snw."//expver
+  end if
+  if (typ=="ens") then
+     call f_conf%get_or_die("member", str)
+     mmb = str
+     lenfn = LEN_TRIM(fdbdir) + 1 + LEN_TRIM(expver) + 1 + LEN_TRIM(typ) + 1 + LEN_TRIM(mmb)
+     prefix = TRIM(fdbdir) // "/" // TRIM(expver) // "." // TRIM(typ) // "." // TRIM(mmb)
+  else
+     lenfn = LEN_TRIM(fdbdir) + 1 + LEN_TRIM(expver) + 1 + LEN_TRIM(typ)
+     prefix = TRIM(fdbdir) // "/" // TRIM(expver) // "." // TRIM(typ)
+  endif
+
+  if (typ=="fc" .or. typ=="ens") then
+     call f_conf%get_or_die("date", str)
+     referencedate = str
+     call datetime_to_string(vdate, validitydate)
+     call datetime_create(TRIM(referencedate), rdate)
+     call datetime_diff(vdate, rdate, step)
+     call duration_to_string(step, sstep)
+     lenfn = lenfn + 1 + LEN_TRIM(referencedate) + 1 + LEN_TRIM(sstep)
+     ucldasv2_genfilename = TRIM(prefix) // "." // TRIM(referencedate) // "." // TRIM(sstep)
+  endif
+
+  if (typ=="an" .or. typ=="incr") then
+     call datetime_to_string(vdate, validitydate)
+     lenfn = lenfn + 1 + LEN_TRIM(validitydate)
+     ucldasv2_genfilename = TRIM(prefix) // "." // TRIM(validitydate)
+  endif
+
+  if (lenfn>length) &
+       & call abor1_ftn("fields:genfilename: filename too long")
+
+   if ( allocated(str) ) deallocate(str)
+
+end function ucldasv2_genfilename
 
 
 end module ucldasv2_fields_mod

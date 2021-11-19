@@ -233,6 +233,29 @@ end subroutine ucldasv2_state_sizes_c
 
 
 ! ------------------------------------------------------------------------------
+!> C++ interface for ucldasv2_state_mod::ucldasv2_state::convert()
+subroutine ucldasv2_state_change_resol_c(c_key_fld,c_key_rhs) bind(c,name='ucldasv2_state_change_resol_f90')
+    integer(c_int), intent(in) :: c_key_fld
+    integer(c_int), intent(in) :: c_key_rhs
+
+    type(ucldasv2_state), pointer :: fld, rhs
+
+    call ucldasv2_state_registry%get(c_key_fld,fld)
+    call ucldasv2_state_registry%get(c_key_rhs,rhs)
+
+    ! TODO (Guillaume or Travis) implement == in geometry or something to that
+    ! effect.
+    !if (size(fld%geom%lon,1)==size(rhs%geom%lon,1) .and. size(fld%geom%lat,2)==size(rhs%geom%lat,2) .and. &
+    !  fld%geom%nzo==rhs%geom%nzo ) then
+    !  call fld%copy(rhs)
+    !else
+      call fld%convert(rhs)
+    !endif
+
+end subroutine ucldasv2_state_change_resol_c
+
+
+! ------------------------------------------------------------------------------
 !> C++ interface for ucldasv2_state_mod::ucldasv2_state version of
 !! ucldasv2_fields_mod::ucldasv2_fields::serial_size()
 subroutine ucldasv2_state_serial_size_c(c_key_self,c_key_geom,c_vec_size) bind (c,name='ucldasv2_state_serial_size_f90')

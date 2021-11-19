@@ -17,6 +17,9 @@ namespace ucldasv2 {
                                   const int &, const int &);
     void ucldasv2_geom_iter_clone_f90(F90iter &, const F90iter &);
     void ucldasv2_geom_iter_delete_f90(F90iter &);
+    void ucldasv2_geom_iter_equals_f90(const F90iter &, const F90iter&, int &);
+    void ucldasv2_geom_iter_current_f90(const F90iter &, double &, double &);
+    void ucldasv2_geom_iter_next_f90(const F90iter &);
   }
 }  // namespace ucldasv2
 #endif  // UCLDASV2_GEOMETRYITERATOR_GEOMETRYITERATORFORTRAN_H_

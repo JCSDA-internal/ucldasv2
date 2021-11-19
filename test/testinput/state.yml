@@ -1,5 +1,6 @@
 geometry:
   ucland_input_nml: ./inputnml/input.nml
+  fields metadata: ./fields_metadata.yml
 
 state test:
   statefile:
@@ -7,10 +8,10 @@ state test:
     date: &date 2018-04-15T00:00:00Z
     basename: ./INPUT/
     lnd_filename: lnd.res.nc
-    state variables: &ucldasv2_vars [snowd, swe]
+    state variables: &ucldasv2_vars [snowd]
 
-  norm file: 0.6
-  norm generated state: 397.84702625989928
+  norm file: 3.9215158525428992
+  norm generated state: 3.84702625989928
 
   date: *date
   tolerance: 1.0e-08

@@ -7,5 +7,7 @@ NJGLOBAL = 20                   !
                                 ! y-direction in the physical domain.
 ! === LND_verticalGrid ===
 ! Parameters providing information about the vertical grid.
-NK = 4                          !   [nondim]
+NSOIL = 4                       !   [nondim]
                                 ! The number of model layers.
+NSNOW = 4                       !   [nondim]
+                                ! The number of snow layers.
