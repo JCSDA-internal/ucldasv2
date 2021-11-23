@@ -11,6 +11,22 @@ list( APPEND ucldasv2_test_input
   testinput/state.yml
   )
 
+set( ucldasv2_data_files
+  Data/fields_metadata.yml
+)
+
+set( ucldasv2_model_param
+  Data/20x20x4/ucldasv2_gridspec.nc
+  Data/20x20x4/LND_input
+)
+
+set( ucldasv2_model_namelist
+  Data/20x20x4/input.nml
+)
+
+set( ucldasv2_model_restarts
+  Data/20x20x4/INPUT/lnd.res.nc
+)
 
 # link the input files for the tests
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testinput)
@@ -18,8 +34,36 @@ foreach(FILENAME ${ucldasv2_test_input})
   execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
     ${CMAKE_CURRENT_SOURCE_DIR}/${FILENAME}
     ${CMAKE_CURRENT_BINARY_DIR}/${FILENAME} )
-endforeach()
+endforeach(FILENAME)
 
+# Create Data directory for model input and symlink all files
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/INPUT)
+foreach(FILENAME ${ucldasv2_model_restarts})
+     get_filename_component(filename ${FILENAME} NAME )
+     execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
+           ${CMAKE_CURRENT_SOURCE_DIR}/${FILENAME}
+           ${CMAKE_CURRENT_BINARY_DIR}/INPUT/${filename} )
+endforeach(FILENAME)
+install(FILES ${ucldasv2_model_restarts}
+        DESTINATION ${INSTALL_DATA_DIR}/testdata/20x20x4/INPUT/ )
+
+# LND's resource files
+foreach(FILENAME ${ucldasv2_model_param} ${ucldasv2_data_files})
+     get_filename_component(filename ${FILENAME} NAME )
+     execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
+           ${CMAKE_CURRENT_SOURCE_DIR}/${FILENAME}
+           ${CMAKE_CURRENT_BINARY_DIR}/${filename} )
+endforeach(FILENAME)
+install(FILES ${ucldasv2_data_files}
+        DESTINATION ${INSTALL_DATA_DIR}/testdata )
+
+# FMS input.nml that may be overwritten during the testing
+foreach(FILENAME ${ucldasv2_model_namelist})
+     get_filename_component(filename ${FILENAME} NAME )
+     execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+           ${CMAKE_CURRENT_SOURCE_DIR}/${FILENAME}
+           ${CMAKE_CURRENT_BINARY_DIR}/inputnml/${filename} )
+endforeach(FILENAME)
 
 #================================================================================
 # Tests of class interfaces
@@ -31,17 +75,23 @@ ecbuild_add_test(
   ARGS    testinput/geometry.yml
   LIBS    ucldasv2 )
 
-# TODO(template_impl) ecbuild_add_test(
-# TODO(template_impl)   TARGET  test_ucldasv2_state
-# TODO(template_impl)   SOURCES executables/TestState.cc
-# TODO(template_impl)   ARGS    testinput/state.yml
-# TODO(template_impl)   LIBS    ucldasv2 )
+ecbuild_add_test(
+  TARGET  test_ucldasv2_state
+  SOURCES executables/TestState.cc
+  ARGS    testinput/state.yml
+  LIBS    ucldasv2 )
 
-# TODO(template_impl) ecbuild_add_test(
-# TODO(template_impl)   TARGET  test_ucldasv2_increment
-# TODO(template_impl)   SOURCES executables/TestIncrement.cc
-# TODO(template_impl)   ARGS    testinput/increment.yml
-# TODO(template_impl)   LIBS    ucldasv2 )
+ecbuild_add_test(
+  TARGET  test_ucldasv2_increment
+  SOURCES executables/TestIncrement.cc
+  ARGS    testinput/increment.yml
+  LIBS    ucldasv2 )
+
+ecbuild_add_test(
+  TARGET  test_ucldasv2_geometryiterator
+  SOURCES executables/TestGeometryIterator.cc
+  ARGS    testinput/geometryiterator.yml
+  LIBS    ucldasv2 )
 
 # TODO(template_impl) ecbuild_add_test(
 # TODO(template_impl)   TARGET  test_ucldasv2_model
@@ -89,10 +139,4 @@ ecbuild_add_test(
 # TODO(template_impl)   TARGET  test_ucldasv2_linearmodel
 # TODO(template_impl)   SOURCES executables/TestLinearModel.cc
 # TODO(template_impl)   ARGS    testinput/linearmodel.yml
-# TODO(template_impl)   LIBS    ucldasv2 )
-
-# TODO(template_impl) ecbuild_add_test(
-# TODO(template_impl)   TARGET  test_ucldasv2_geometryiterator
-# TODO(template_impl)   SOURCES executables/TestGeometryIterator.cc
-# TODO(template_impl)   ARGS    testinput/geometryiterator.yml
 # TODO(template_impl)   LIBS    ucldasv2 )

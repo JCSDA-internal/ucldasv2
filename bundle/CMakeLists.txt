@@ -35,6 +35,11 @@ ecbuild_bundle( PROJECT eckit GIT "https://github.com/ecmwf/eckit.git" TAG 1.15.
 ecbuild_bundle( PROJECT fckit GIT "https://github.com/ecmwf/fckit.git" TAG 0.9.1 )
 ecbuild_bundle( PROJECT atlas GIT "https://github.com/ecmwf/atlas.git" TAG 0.23.0 )
 
+option(BUILD_FMS "download and build fms" ON)
+if ( BUILD_FMS )
+  ecbuild_bundle( PROJECT fms           GIT "https://github.com/jcsda/FMS.git"                     UPDATE BRANCH release-stable )
+endif ()
+
 # External (required) observation operators
 # ------------------------------
 option("BUNDLE_SKIP_CRTM" "Don't build CRTM" "ON") # Skip crtm build unless user passes -DBUNDLE_SKIP_CRTM=OFF
@@ -48,6 +53,8 @@ ecbuild_bundle( PROJECT ufo             GIT "https://github.com/jcsda-internal/u
 
 # Our repo
 ecbuild_bundle( PROJECT ucldasv2         SOURCE ../)
+
+add_subdirectory( ucland )
 
 # ioda, ufo, fv3-jedi and saber test data
 #----------------------------------------

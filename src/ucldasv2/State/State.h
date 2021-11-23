@@ -52,6 +52,7 @@ namespace ucldasv2 {
     State(const Geometry &, const State &);
     State(const State &);
     ~State();
+    State & operator=(const State &);
 
     // math operators
     State & operator+=(const Increment &);
@@ -74,11 +75,15 @@ namespace ucldasv2 {
     void deserialize(const std::vector<double> &, size_t &) override;
 
     // other accessors
+    int & toFortran() {return keyFlds_;}
+    const int & toFortran() const {return keyFlds_;}
     std::shared_ptr<const Geometry> geometry() const;
     const oops::Variables & variables() const { return vars_; }
 
    private:
     void print(std::ostream &) const;
+
+    F90flds keyFlds_;
 
     std::shared_ptr<const Geometry> geom_;
     oops::Variables vars_;
