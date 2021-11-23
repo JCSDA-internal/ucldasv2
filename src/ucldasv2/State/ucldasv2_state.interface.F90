@@ -15,8 +15,8 @@ use oops_variables_mod, only: oops_variables
 ! ucldasv2 modules
 use ucldasv2_geom_mod_c, only: ucldasv2_geom_registry
 use ucldasv2_geom_mod, only: ucldasv2_geom
-!use ucldasv2_increment_mod, only: ucldasv2_increment
-!use ucldasv2_increment_reg, only: ucldasv2_increment_registry
+use ucldasv2_increment_mod, only: ucldasv2_increment
+use ucldasv2_increment_reg, only: ucldasv2_increment_registry
 use ucldasv2_state_mod, only: ucldasv2_state
 use ucldasv2_state_reg, only: ucldasv2_state_registry
 !use ucldasv2_analytic_mod, only: ucldasv2_analytic_state
@@ -38,9 +38,9 @@ subroutine ucldasv2_state_create_c(c_key_self, c_key_geom, c_vars) bind(c,name='
     integer(c_int),    intent(in) :: c_key_geom !< Geometry
     type(c_ptr),value, intent(in) :: c_vars     !< List of variables
 
-    type(ucldasv2_state),pointer :: self
+    type(ucldasv2_state), pointer :: self
     type(ucldasv2_geom),  pointer :: geom
-    type(oops_variables)      :: vars
+    type(oops_variables)          :: vars
 
     call ucldasv2_geom_registry%get(c_key_geom, geom)
     call ucldasv2_state_registry%init()
@@ -108,7 +108,7 @@ subroutine ucldasv2_state_axpy_c(c_key_self,c_zz,c_key_rhs) bind(c,name='ucldasv
     integer(c_int), intent(in) :: c_key_rhs
 
     type(ucldasv2_state), pointer :: self
-    real(kind=kind_real)      :: zz
+    real(kind=kind_real)          :: zz
     type(ucldasv2_state), pointer :: rhs
 
     call ucldasv2_state_registry%get(c_key_self,self)
@@ -126,12 +126,12 @@ subroutine ucldasv2_state_add_incr_c(c_key_self,c_key_rhs) bind(c,name='ucldasv2
     integer(c_int), intent(in) :: c_key_rhs
 
     type(ucldasv2_state),     pointer :: self
-!   type(ucldasv2_increment), pointer :: rhs
+    type(ucldasv2_increment), pointer :: rhs
 
     call ucldasv2_state_registry%get(c_key_self,self)
-!   call ucldasv2_increment_registry%get(c_key_rhs,rhs)
+    call ucldasv2_increment_registry%get(c_key_rhs,rhs)
 
-!   call self%add_incr(rhs)
+    call self%add_incr(rhs)
 
 end subroutine ucldasv2_state_add_incr_c
 
@@ -145,7 +145,7 @@ subroutine ucldasv2_state_read_file_c(c_key_fld, c_conf, c_dt) bind(c,name='ucld
     type(c_ptr), intent(inout) :: c_dt       !< DateTime
 
     type(ucldasv2_state), pointer :: fld
-    type(datetime)            :: fdate
+    type(datetime)                :: fdate
 
     call ucldasv2_state_registry%get(c_key_fld,fld)
     call c_f_datetime(c_dt, fdate)
@@ -163,11 +163,11 @@ subroutine ucldasv2_state_write_file_c(c_key_fld, c_conf, c_dt) bind(c,name='ucl
     type(c_ptr),    intent(in) :: c_dt       !< DateTime
 
     type(ucldasv2_state), pointer :: fld
-    type(datetime)            :: fdate
+    type(datetime)                :: fdate
 
     call ucldasv2_state_registry%get(c_key_fld,fld)
     call c_f_datetime(c_dt, fdate)
-!   call fld%write_rst(fckit_configuration(c_conf), fdate)
+    call fld%write_rst(fckit_configuration(c_conf), fdate)
 
 end subroutine ucldasv2_state_write_file_c
 
@@ -181,7 +181,7 @@ subroutine ucldasv2_state_gpnorm_c(c_key_fld, kf, pstat) bind(c,name='ucldasv2_s
     real(c_double), intent(inout) :: pstat(3*kf)
 
     type(ucldasv2_state), pointer :: fld
-    real(kind=kind_real)      :: zstat(3, kf)
+    real(kind=kind_real)          :: zstat(3, kf)
     integer :: jj, js, jf
 
     call ucldasv2_state_registry%get(c_key_fld,fld)
@@ -204,7 +204,7 @@ subroutine ucldasv2_state_rms_c(c_key_fld, prms) bind(c,name='ucldasv2_state_rms
     real(c_double), intent(inout) :: prms
 
     type(ucldasv2_state), pointer :: fld
-    real(kind=kind_real)      :: zz
+    real(kind=kind_real)          :: zz
 
     call ucldasv2_state_registry%get(c_key_fld,fld)
 
@@ -245,12 +245,12 @@ subroutine ucldasv2_state_change_resol_c(c_key_fld,c_key_rhs) bind(c,name='uclda
 
     ! TODO (Guillaume or Travis) implement == in geometry or something to that
     ! effect.
-    !if (size(fld%geom%lon,1)==size(rhs%geom%lon,1) .and. size(fld%geom%lat,2)==size(rhs%geom%lat,2) .and. &
-    !  fld%geom%nzo==rhs%geom%nzo ) then
-    !  call fld%copy(rhs)
-    !else
+     if (size(fld%geom%lon,1)==size(rhs%geom%lon,1) .and. size(fld%geom%lat,2)==size(rhs%geom%lat,2) .and. &
+       fld%geom%nsnow==rhs%geom%nsnow ) then
+       call fld%copy(rhs)
+     else
       call fld%convert(rhs)
-    !endif
+     endif
 
 end subroutine ucldasv2_state_change_resol_c
 
