@@ -39,38 +39,31 @@ namespace oops {
   class Variables;
 }
 
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 
 namespace ucldasv2 {
 
-  // Geometry class
+  /// Geometry handles geometry for UCLDASV2 model.
   class Geometry : public util::Printable,
                    private util::ObjectCounter<Geometry> {
    public:
     static const std::string classname() {return "ucldasv2::Geometry";}
 
-    // constructors and destructor
     explicit Geometry(const eckit::Configuration &, const eckit::mpi::Comm &);
     Geometry(const Geometry &);
     ~Geometry();
 
     GeometryIterator begin() const;
     GeometryIterator end() const;
+    std::vector<size_t> variableSizes(const oops::Variables & vars) const;
+    std::vector<double> verticalCoord(std::string &) const {return {};}
 
-    // accessors
     int& toFortran() {return keyGeom_;}
     const int& toFortran() const {return keyGeom_;}
     const eckit::mpi::Comm & getComm() const {return comm_;}
 
-    // These are needed for the GeometryIterator Interface
-    //GeometryIterator begin() const;
-    //GeometryIterator end() const;
-
     atlas::FunctionSpace * atlasFunctionSpace() const;
     atlas::FieldSet * atlasFieldSet() const;
-
-    // vertical coordinate (only needed for GETKF?)
-    std::vector<double> verticalCoord(std::string &) const;
 
    private:
     Geometry & operator=(const Geometry &);

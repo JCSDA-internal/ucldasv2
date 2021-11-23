@@ -1,5 +1,6 @@
 /*
- * (C) Copyright 2019-2020 UCAR.
+ * (C) Copyright 2009-2016 ECMWF.
+ * (C) Copyright 2017-2021 UCAR.
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -16,16 +17,22 @@
 #include <string>
 #include <vector>
 
-#include "oops/base/GeneralizedDepartures.h"
+#include "ucldasv2/Fortran.h"
+
+#include "oops/base/LocalIncrement.h"
 #include "oops/base/Variables.h"
 #include "oops/util/DateTime.h"
+#include "oops/util/Duration.h"
+#include "oops/util/ObjectCounter.h"
 #include "oops/util/Printable.h"
 #include "oops/util/Serializable.h"
 
-// forward declarations
-namespace oops {
-  class LocalIncrement;
-  class Variables;
+// Forward declarations
+namespace atlas {
+  class FieldSet;
+}
+namespace eckit {
+  class Configuration;
 }
 namespace ufo {
   class GeoVaLs;
@@ -37,73 +44,87 @@ namespace ucldasv2 {
   class State;
 }
 
-// ----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 namespace ucldasv2 {
 
-  // Increment class
-  class Increment : public oops::GeneralizedDepartures,
-                    public util::Printable,
-                    public util::Serializable,
-                    private util::ObjectCounter<Increment> {
+  /// Increment Class: Difference between two states
+  /*!
+   *  Some fields that are present in a State may not be present in
+   *  an Increment. The Increment contains everything that is needed by
+   *  the tangent-linear and adjoint models.
+   */
+
+  class Increment :
+    public util::Printable,
+    public util::Serializable,
+    private util::ObjectCounter<Increment> {
    public:
-    static const std::string classname() {return "ucldasv2::Increment";}
+      static const std::string classname() {return "ucldasv2::Increment";}
 
-    // Constructor, destructor
-    Increment(const Geometry &, const oops::Variables &,
-              const util::DateTime &);
-    Increment(const Geometry &, const Increment &);
-    Increment(const Increment &, const bool);
-    Increment(const Increment &);
-    ~Increment();
+      /// Constructor, destructor
+      Increment(const Geometry &, const oops::Variables &,
+                const util::DateTime &);
+      Increment(const Geometry &, const Increment &);
+      Increment(const Increment &, const bool);
+      Increment(const Increment &);
+      virtual ~Increment();
 
-        // Math operators
-    Increment & operator =(const Increment &);
-    Increment & operator-=(const Increment &);
-    Increment & operator+=(const Increment &);
-    Increment & operator*=(const double &);
-    void accumul(const double &, const State &);
-    void axpy(const double &, const Increment &, const bool check = true);
-    void diff(const State &, const State &);
-    double dot_product_with(const Increment &) const;
-    double norm() const;
-    void random();
-    void schur_product_with(const Increment &);
-    void zero();
-    void zero(const util::DateTime &);
-    void ones();
+      /// Basic operators
+      void diff(const State &, const State &);
+      void ones();
+      void zero();
+      void zero(const util::DateTime &);
+      Increment & operator =(const Increment &);
+      Increment & operator+=(const Increment &);
+      Increment & operator-=(const Increment &);
+      Increment & operator*=(const double &);
+      void axpy(const double &, const Increment &, const bool check = true);
+      double dot_product_with(const Increment &) const;
+      void schur_product_with(const Increment &);
+      void random();
+      void dirac(const eckit::Configuration &);
 
-    // time manipulation
-    void updateTime(const util::Duration & dt) { time_ += dt; }
-    const util::DateTime & validTime() const { return time_; }
-    util::DateTime & validTime() { return time_; }
+      /// Getpoint/Setpoint
+      oops::LocalIncrement getLocal(const GeometryIterator &) const;
+      void setLocal(const oops::LocalIncrement &, const GeometryIterator &);
 
-    // dirac
-    void dirac(const eckit::Configuration &);
+      /// ATLAS
+      void setAtlas(atlas::FieldSet *) const;
+      void toAtlas(atlas::FieldSet *) const;
+      void fromAtlas(atlas::FieldSet *);
 
-    // Iterator access
-    oops::LocalIncrement getLocal(const GeometryIterator &) const;
-    void setLocal(const oops::LocalIncrement &, const GeometryIterator &);
+      /// I/O and diagnostics
+      void read(const eckit::Configuration &);
+      void write(const eckit::Configuration &) const;
+      double norm() const;
+      const util::DateTime & validTime() const;
+      util::DateTime & validTime();
+      void updateTime(const util::Duration & dt);
 
-    // serialize (only needed for EDA?)
-    size_t serialSize() const override;
-    void serialize(std::vector<double> &) const override;
-    void deserialize(const std::vector<double> &, size_t &) override;
+      /// Serialize and deserialize
+      size_t serialSize() const override;
+      void serialize(std::vector<double> &) const override;
+      void deserialize(const std::vector<double> &, size_t &) override;
 
-    // other accessors
-    std::shared_ptr<const Geometry> geometry() const { return geom_; }
+      /// Other
+      void accumul(const double &, const State &);
+      int & toFortran() {return keyFlds_;}
+      const int & toFortran() const {return keyFlds_;}
+      std::shared_ptr<const Geometry> geometry() const;
 
-    // I/O
-    void read(const eckit::Configuration &);
-    void write(const eckit::Configuration &) const;
 
+      /// Data
    private:
-    void print(std::ostream &) const;
+      void print(std::ostream &) const override;
 
-    std::shared_ptr<const Geometry> geom_;
-    util::DateTime time_;
-    oops::Variables vars_;
+      F90flds keyFlds_;
+      oops::Variables vars_;
+      util::DateTime time_;
+      std::shared_ptr<const Geometry> geom_;
   };
+  // -----------------------------------------------------------------------------
+
 }  // namespace ucldasv2
 
 #endif  // UCLDASV2_INCREMENT_INCREMENT_H_

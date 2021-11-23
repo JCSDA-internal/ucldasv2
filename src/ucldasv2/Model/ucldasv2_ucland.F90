@@ -59,7 +59,7 @@ subroutine ucldasv2_geomdomain_init(Domain, nk, f_comm)
   call LND_domains_init(Domain, param_file)
 
   ! Get number of levels
-  call get_param(param_file, mod_name, "NK", nk, fail_if_missing=.true.)
+  call get_param(param_file, mod_name, "NSOIL", nk, fail_if_missing=.true.)
 
   call close_param_file(param_file)
   call fms_io_exit()

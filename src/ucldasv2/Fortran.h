@@ -10,12 +10,26 @@
 
 namespace ucldasv2 {
 
-  // Geometry key type
+  /// key type for ucldasv2_geom_mod::ucldasv2_geom
   typedef int F90geom;
-  // Geometry iterator key type
+
+  /// key type for ucldasv2_geom_iter_mod::ucldasv2_geom_iter
   typedef int F90iter;
-  // Model key type
+
+  /// key type for ucldasv2_model_mod::ucldasv2_model
   typedef int F90model;
-  //
+
+  /// key type for ufo_geovals_mod::ufo_geovals
+  typedef int F90goms;
+
+  /// key type for ucldasv2_fields_mod::ucldasv2_fields
+  typedef int F90flds;
+
+  /// key type for ucldasv2_getvalues_mod::ucldasv2_getvalues
+  typedef int F90getval;
+
+  /// key type for ucldasv2_covariance_mod::ucldasv2_cov
+  typedef int F90bmat;
+
 }  // namespace ucldasv2
 #endif  // UCLDASV2_FORTRAN_H_
