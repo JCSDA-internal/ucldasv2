@@ -15,6 +15,9 @@ use mpp_domains_mod, only : LND_define_domain => mpp_define_domains
 use mpp_domains_mod, only : domain2D, domain1D, mpp_get_data_domain
 use mpp_domains_mod, only : mpp_get_compute_domain, mpp_get_global_domain
 use mpp_domains_mod, only : mpp_update_domains, CYCLIC_GLOBAL_DOMAIN, FOLD_NORTH_EDGE
+use mpp_domains_mod, only : To_East => WUPDATE, To_West => EUPDATE, Omit_Corners => EDGEUPDATE
+use mpp_domains_mod, only : To_North => SUPDATE, To_South => NUPDATE
+use mpp_domains_mod, only : CENTER, CORNER, NORTH_FACE => NORTH, EAST_FACE => EAST
 use fms_io_mod,      only : file_exist, parse_mask_table
 use fms_affinity_mod, only : fms_affinity_init, fms_affinity_set, fms_affinity_get
 
@@ -23,7 +26,14 @@ implicit none ; private
 public :: LND_domains_init
 public :: LND_define_domain
 public :: PE_here, root_PE, num_PEs, sum_across_pes
+public :: pass_var
+public :: To_East, To_West, To_North, To_South, To_All, Omit_Corners
 public :: domain2D
+
+!> Do a halo update on an array
+interface pass_var
+  module procedure pass_var_3d, pass_var_2d
+end interface pass_var
 
 !> The LND_domain_type contains information about the domain decompositoin.
 type, public :: LND_domain_type
@@ -61,7 +71,176 @@ type, public :: LND_domain_type
                                 !! assigned if all logical processors are used.
 end type LND_domain_type
 
+integer, parameter :: To_All = To_East + To_West + To_North + To_South !< A flag for passing in all directions
+
 contains
+
+!> pass_var_3d does a halo update for a three-dimensional array.
+subroutine pass_var_3d(array, LND_dom, sideflag, complete, position, halo, &
+                       clock)
+  real, dimension(:,:,:), intent(inout) :: array    !< The array which is having its halos points
+                                                    !! exchanged.
+  type(LND_domain_type),  intent(inout) :: LND_dom  !< The LND_domain_type containing the mpp_domain
+                                                    !! needed to determine where data should be
+                                                    !! sent.
+  integer,      optional, intent(in)    :: sideflag !< An optional integer indicating which
+      !! directions the data should be sent.  It is TO_ALL or the sum of any of TO_EAST, TO_WEST,
+      !! TO_NORTH, and TO_SOUTH.  For example, TO_EAST sends the data to the processor to the east,
+      !! sothe halos on the western side are filled.  TO_ALL is the default if sideflag is omitted.
+  logical,      optional, intent(in)    :: complete !< An optional argument indicating whether the
+                                                    !! halo updates should be completed before
+                                                    !! progress resumes. Omitting complete is the
+                                                    !! same as setting complete to .true.
+  integer,      optional, intent(in)    :: position !< An optional argument indicating the position.
+                                                    !! This is CENTER by default and is often CORNER,
+                                                    !! but could also be EAST_FACE or NORTH_FACE.
+  integer,      optional, intent(in)    :: halo     !< The size of the halo to update - the full
+                                                    !! halo by default.
+  integer,      optional, intent(in)    :: clock    !< The handle for a cpu time clock that should be
+                                                    !! started then stopped to time this routine.
+
+  integer :: dirflag
+  logical :: block_til_complete
+
+! if (present(clock)) then ; if (clock>0) call cpu_clock_begin(clock) ; endif
+
+  dirflag = To_All ! 60
+  if (present(sideflag)) then ; if (sideflag > 0) dirflag = sideflag ; endif
+  block_til_complete = .true.
+  if (present(complete)) block_til_complete = complete
+
+  if (present(halo) .and. LND_dom%thin_halo_updates) then
+    call mpp_update_domains(array, LND_dom%mpp_domain, flags=dirflag, &
+                        complete=block_til_complete, position=position, &
+                        whalo=halo, ehalo=halo, shalo=halo, nhalo=halo)
+  else
+    call mpp_update_domains(array, LND_dom%mpp_domain, flags=dirflag, &
+                          complete=block_til_complete, position=position)
+  endif
+
+! if (present(clock)) then ; if (clock>0) call cpu_clock_end(clock) ; endif
+
+end subroutine pass_var_3d
+
+!> pass_var_2d does a halo update for a two-dimensional array.
+subroutine pass_var_2d(array, LND_dom, sideflag, complete, position, halo, inner_halo, clock)
+  real, dimension(:,:),  intent(inout) :: array    !< The array which is having its halos points
+                                                   !! exchanged.
+  type(LND_domain_type), intent(inout) :: LND_dom  !< The LND_domain_type containing the mpp_domain
+                                                   !! needed to determine where data should be sent.
+  integer,     optional, intent(in)    :: sideflag !< An optional integer indicating which
+      !! directions the data should be sent. It is TO_ALL or the sum of any of TO_EAST, TO_WEST,
+      !! TO_NORTH, and TO_SOUTH.  For example, TO_EAST sends the data to the processor to the east,
+      !! so the halos on the western side are filled.  TO_ALL is the default if sideflag is omitted.
+  logical,     optional, intent(in)    :: complete !< An optional argument indicating whether the
+                                                   !! halo updates should be completed before
+                                                   !! progress resumes. Omitting complete is the
+                                                   !! same as setting complete to .true.
+  integer,     optional, intent(in)    :: position !< An optional argument indicating the position.
+                                                   !! This is CENTER by default and is often CORNER,
+                                                   !! but could also be EAST_FACE or NORTH_FACE.
+  integer,     optional, intent(in)    :: halo     !< The size of the halo to update - the full halo
+                                                   !! by default.
+  integer,     optional, intent(in)    :: inner_halo !< The size of an inner halo to avoid updating,
+                                                   !! or 0 to avoid updating symmetric memory
+                                                   !! computational domain points.  Setting this >=0
+                                                   !! also enforces that complete=.true.
+  integer,     optional, intent(in)    :: clock    !< The handle for a cpu time clock that should be
+                                                   !! started then stopped to time this routine.
+
+  ! Local variables
+  real, allocatable, dimension(:,:) :: tmp
+  integer :: pos, i_halo, j_halo
+  integer :: isc, iec, jsc, jec, isd, ied, jsd, jed, IscB, IecB, JscB, JecB
+  integer :: inner, i, j, isfw, iefw, isfe, iefe, jsfs, jefs, jsfn, jefn
+  integer :: dirflag
+  logical :: block_til_complete
+
+! if (present(clock)) then ; if (clock>0) call cpu_clock_begin(clock) ; endif
+
+  dirflag = To_All ! 60
+  if (present(sideflag)) then ; if (sideflag > 0) dirflag = sideflag ; endif
+  block_til_complete = .true. ; if (present(complete)) block_til_complete = complete
+  pos = CENTER ; if (present(position)) pos = position
+
+  if (present(inner_halo)) then ; if (inner_halo >= 0) then
+    ! Store the original values.
+    allocate(tmp(size(array,1), size(array,2)))
+    tmp(:,:) = array(:,:)
+    block_til_complete = .true.
+  endif ; endif
+
+  if (present(halo) .and. LND_dom%thin_halo_updates) then
+    call mpp_update_domains(array, LND_dom%mpp_domain, flags=dirflag, &
+                        complete=block_til_complete, position=position, &
+                        whalo=halo, ehalo=halo, shalo=halo, nhalo=halo)
+  else
+    call mpp_update_domains(array, LND_dom%mpp_domain, flags=dirflag, &
+                        complete=block_til_complete, position=position)
+  endif
+
+  if (present(inner_halo)) then ; if (inner_halo >= 0) then
+    call mpp_get_compute_domain(LND_dom%mpp_domain, isc, iec, jsc, jec)
+    call mpp_get_data_domain(LND_dom%mpp_domain, isd, ied, jsd, jed)
+    ! Convert to local indices for arrays starting at 1.
+    isc = isc - (isd-1) ; iec = iec - (isd-1) ; ied = ied - (isd-1) ; isd = 1
+    jsc = jsc - (jsd-1) ; jec = jec - (jsd-1) ; jed = jed - (jsd-1) ; jsd = 1
+    i_halo = min(inner_halo, isc-1) ; j_halo = min(inner_halo, jsc-1)
+
+    ! Figure out the array index extents of the eastern, western, northern and
+    ! southern regions to copy.
+    if (pos == CENTER) then
+      if (size(array,1) == ied) then
+        isfw = isc - i_halo ; iefw = isc ; isfe = iec ; iefe = iec + i_halo
+      else ; call LND_error(FATAL, "pass_var_2d: wrong i-size for CENTER array.") ; endif
+      if (size(array,2) == jed) then
+        isfw = isc - i_halo ; iefw = isc ; isfe = iec ; iefe = iec + i_halo
+      else ; call LND_error(FATAL, "pass_var_2d: wrong j-size for CENTER array.") ; endif
+    elseif (pos == CORNER) then
+      if (size(array,1) == ied) then
+        isfw = max(isc - (i_halo+1), 1) ; iefw = isc ; isfe = iec ; iefe = iec + i_halo
+      elseif (size(array,1) == ied+1) then
+        isfw = isc - i_halo ; iefw = isc+1 ; isfe = iec+1 ; iefe = min(iec + 1 + i_halo, ied+1)
+      else ; call LND_error(FATAL, "pass_var_2d: wrong i-size for CORNER array.") ; endif
+      if (size(array,2) == jed) then
+        jsfs = max(jsc - (j_halo+1), 1) ; jefs = jsc ; jsfn = jec ; jefn = jec + j_halo
+      elseif (size(array,2) == jed+1) then
+        jsfs = jsc - j_halo ; jefs = jsc+1 ; jsfn = jec+1 ; jefn = min(jec + 1 + j_halo, jed+1)
+      else ; call LND_error(FATAL, "pass_var_2d: wrong j-size for CORNER array.") ; endif
+    elseif (pos == NORTH_FACE) then
+      if (size(array,1) == ied) then
+        isfw = isc - i_halo ; iefw = isc ; isfe = iec ; iefe = iec + i_halo
+      else ; call LND_error(FATAL, "pass_var_2d: wrong i-size for NORTH_FACE array.") ; endif
+      if (size(array,2) == jed) then
+        jsfs = max(jsc - (j_halo+1), 1) ; jefs = jsc ; jsfn = jec ; jefn = jec + j_halo
+      elseif (size(array,2) == jed+1) then
+        jsfs = jsc - j_halo ; jefs = jsc+1 ; jsfn = jec+1 ; jefn = min(jec + 1 + j_halo, jed+1)
+      else ; call LND_error(FATAL, "pass_var_2d: wrong j-size for NORTH_FACE array.") ; endif
+    elseif (pos == EAST_FACE) then
+      if (size(array,1) == ied) then
+        isfw = max(isc - (i_halo+1), 1) ; iefw = isc ; isfe = iec ; iefe = iec + i_halo
+      elseif (size(array,1) == ied+1) then
+        isfw = isc - i_halo ; iefw = isc+1 ; isfe = iec+1 ; iefe = min(iec + 1 + i_halo, ied+1)
+      else ; call LND_error(FATAL, "pass_var_2d: wrong i-size for EAST_FACE array.") ; endif
+      if (size(array,2) == jed) then
+        isfw = isc - i_halo ; iefw = isc ; isfe = iec ; iefe = iec + i_halo
+      else ; call LND_error(FATAL, "pass_var_2d: wrong j-size for EAST_FACE array.") ; endif
+    else
+      call LND_error(FATAL, "pass_var_2d: Unrecognized position")
+    endif
+
+    ! Copy back the stored inner halo points
+    do j=jsfs,jefn ; do i=isfw,iefw ; array(i,j) = tmp(i,j) ; enddo ; enddo
+    do j=jsfs,jefn ; do i=isfe,iefe ; array(i,j) = tmp(i,j) ; enddo ; enddo
+    do j=jsfs,jefs ; do i=isfw,iefe ; array(i,j) = tmp(i,j) ; enddo ; enddo
+    do j=jsfn,jefn ; do i=isfw,iefe ; array(i,j) = tmp(i,j) ; enddo ; enddo
+
+    deallocate(tmp)
+  endif ; endif
+
+! if (present(clock)) then ; if (clock>0) call cpu_clock_end(clock) ; endif
+
+end subroutine pass_var_2d
 
 !> LND_domains_init initalizes a LND_domain_type variable, based on the information
 !! read in from a param_file_type, and optionally returns data describing various'
