@@ -66,6 +66,12 @@ type, public :: ucldasv2_geom
     integer :: isdl, iedl, jsdl, jedl
     !> \}
 
+
+    !> \name iterator dimension
+    !! \{
+    integer :: iterator_dimension
+    !> \}
+
     !> \name grid latitude/longitude
     !! \{
     real(kind=kind_real), allocatable, dimension(:,:) :: lon !< Tracer grid longitude
@@ -172,6 +178,10 @@ subroutine ucldasv2_geom_init(self, f_conf, f_comm)
   call f_conf%get_or_die("fields metadata", str)
   call self%fields_metadata%create(str)
 
+  ! retrieve iterator dimension from config
+  if ( .not. f_conf%get("iterator dimension", self%iterator_dimension) ) &
+      self%iterator_dimension = 2
+
 end subroutine ucldasv2_geom_init
 
 ! ------------------------------------------------------------------------------
@@ -270,6 +280,8 @@ subroutine ucldasv2_geom_clone(self, other)
 
   !
   self%geom_grid_file = other%geom_grid_file
+
+  self%iterator_dimension = other%iterator_dimension
 
   ! Allocate and clone geometry
   call ucldasv2_geom_allocate(self)
