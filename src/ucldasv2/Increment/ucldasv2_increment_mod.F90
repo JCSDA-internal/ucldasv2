@@ -102,9 +102,6 @@ subroutine ucldasv2_increment_random(self)
   ! set random values
   do i = 1, size(self%fields)
     field => self%fields(i)
-    ! TODO remove this once increment / state are fully separated
-    ! NOTE: can't randomize "snowd", testIncrementInterpAD fails
-    if (field%name == 'snowd') cycle
     call normal_distribution(field%val,  0.0_kind_real, 1.0_kind_real, rseed)
   end do
 
