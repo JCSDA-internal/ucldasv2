@@ -29,7 +29,8 @@ GeometryIterator::GeometryIterator(const GeometryIterator& iter) {
 GeometryIterator::GeometryIterator(const Geometry& geom,
                                    const int & iindex, const int & jindex,
                                    const int & kindex) {
-  ucldasv2_geom_iter_setup_f90(keyIter_, geom.toFortran(), iindex, jindex, kindex);
+  ucldasv2_geom_iter_setup_f90(keyIter_, geom.toFortran(),
+  iindex, jindex, kindex);
 }
 
 

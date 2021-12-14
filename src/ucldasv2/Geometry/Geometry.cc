@@ -80,7 +80,8 @@ namespace ucldasv2 {
   std::vector<size_t> Geometry::variableSizes(
       const oops::Variables & vars) const {
     std::vector<size_t> lvls(vars.size());
-    ucldasv2_geo_get_num_levels_f90(toFortran(), vars, lvls.size(), lvls.data());
+    ucldasv2_geo_get_num_levels_f90(toFortran(), vars, lvls.size(),
+                                                      lvls.data());
     return lvls;
   }
   // ----------------------------------------------------------------------------

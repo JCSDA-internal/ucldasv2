@@ -70,10 +70,10 @@ namespace ucldasv2 {
                                    const oops::Variables &,
                                    atlas::field::FieldSetImpl *);
     void ucldasv2_increment_gpnorm_f90(const F90flds &, const int &, double &);
-    void ucldasv2_increment_getpoint_f90(const F90flds &, const F90iter &, double &,
-                           const int &);
-    void ucldasv2_increment_setpoint_f90(F90flds &, const F90iter &, const double &,
-                           const int &);
+    void ucldasv2_increment_getpoint_f90(const F90flds &, const F90iter &,
+                                   double &, const int &);
+    void ucldasv2_increment_setpoint_f90(F90flds &, const F90iter &,
+                                   const double &, const int &);
     void ucldasv2_increment_sizes_f90(const F90flds &, int &,
                               int &, int &, int &);
     void ucldasv2_increment_rms_f90(const F90flds &, double &);

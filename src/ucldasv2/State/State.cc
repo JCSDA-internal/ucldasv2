@@ -51,12 +51,11 @@ namespace ucldasv2 {
       std::string dt;
       conf.get("date", dt);
       time_ = util::DateTime(dt);
-      //ucldasv2_state_analytic_f90(toFortran(), &conf, &dtp);
+      // ucldasv2_state_analytic_f90(toFortran(), &conf, &dtp);
     } else {
       ucldasv2_state_read_file_f90(toFortran(), &conf, &dtp);
     }
     Log::trace() << "State::State created and read in." << std::endl;
-
   }
   // ----------------------------------------------------------------------------
   State::State(const Geometry & geom, const State & other)

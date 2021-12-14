@@ -41,8 +41,8 @@ namespace ucldasv2 {
     void ucldasv2_geo_delete_f90(F90geom &);
     void ucldasv2_geo_start_end_f90(const F90geom &, int &, int &, int &,
                                 int &);
-    void ucldasv2_geo_get_num_levels_f90(const F90geom &, const oops::Variables &,
-                                    const size_t &, size_t[]);
+    void ucldasv2_geo_get_num_levels_f90(const F90geom &, const
+                          oops::Variables &, const size_t &, size_t[]);
   }
 }  // namespace ucldasv2
 #endif  // UCLDASV2_GEOMETRY_GEOMETRYFORTRAN_H_

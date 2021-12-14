@@ -23,13 +23,14 @@ namespace util {
 
 namespace ucldasv2 {
 
- extern "C" {
+  extern "C" {
     void ucldasv2_state_create_f90(F90flds &, const F90geom &,
                                const oops::Variables &);
     void ucldasv2_state_delete_f90(F90flds &);
     void ucldasv2_state_copy_f90(const F90flds &, const F90flds &);
     void ucldasv2_state_zero_f90(const F90flds &);
-    void ucldasv2_state_axpy_f90(const F90flds &, const double &, const F90flds &);
+    void ucldasv2_state_axpy_f90(const F90flds &, const double &,
+                                  const F90flds &);
     void ucldasv2_state_add_incr_f90(const F90flds &, const F90flds &);
     void ucldasv2_state_read_file_f90(const F90flds &,
                                   const eckit::Configuration * const &,
@@ -54,7 +55,7 @@ namespace ucldasv2 {
                                     const size_t &,
                                     const double[],
                                     size_t &);
-    //void ucldasv2_state_analytic_f90(const F90flds &,
+    // void ucldasv2_state_analytic_f90(const F90flds &,
     //                             const eckit::Configuration * const &,
     //                             util::DateTime * const *);
   }

@@ -288,8 +288,8 @@ namespace ucldasv2 {
                               size_t & index) {
     // Deserialize the field
 
-    ucldasv2_increment_deserialize_f90(toFortran(), geom_->toFortran(), vect.size(),
-                                   vect.data(), index);
+    ucldasv2_increment_deserialize_f90(toFortran(), geom_->toFortran(),
+                                      vect.size(), vect.data(), index);
 
     // Use magic value to validate deserialization
     ASSERT(vect.at(index) == SerializeCheckValue);
