@@ -105,11 +105,11 @@ ecbuild_add_test(
 # TODO(template_impl)   ARGS    testinput/modelaux.yml
 # TODO(template_impl)   LIBS    ucldasv2 )
 
-# TODO(template_impl) ecbuild_add_test(
-# TODO(template_impl)   TARGET  test_ucldasv2_getvalues
-# TODO(template_impl)   SOURCES executables/TestGetValues.cc
-# TODO(template_impl)   ARGS    testinput/getvalues.yml
-# TODO(template_impl)   LIBS    ucldasv2 )
+ecbuild_add_test(
+  TARGET  test_ucldasv2_getvalues
+  SOURCES executables/TestGetValues.cc
+  ARGS    testinput/getvalues.yml
+  LIBS    ucldasv2 )
 
 # TODO(template_impl) ecbuild_add_test(
 # TODO(template_impl)   TARGET  test_ucldasv2_lineargetvalues

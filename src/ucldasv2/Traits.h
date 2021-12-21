@@ -13,8 +13,8 @@
 // TODO(template_impl) #include "ucldasv2/Covariance/Covariance.h"
 #include "ucldasv2/Geometry/Geometry.h"
 #include "ucldasv2/GeometryIterator/GeometryIterator.h"
-// TODO(template_impl) #include "ucldasv2/GetValues/GetValues.h"
-// TODO(template_impl) #include "ucldasv2/GetValues/LinearGetValues.h"
+#include "ucldasv2/GetValues/GetValues.h"
+#include "ucldasv2/GetValues/LinearGetValues.h"
 #include "ucldasv2/Increment/Increment.h"
 // TODO(template_impl) #include "ucldasv2/ModelAux/ModelAuxControl.h"
 // TODO(template_impl) #include "ucldasv2/ModelAux/ModelAuxCovariance.h"
@@ -25,17 +25,16 @@ namespace ucldasv2 {
 
   struct Traits{
     static std::string name() {return "ucldasv2";}
-    static std::string nameCovar() {return "ucldasv2Covar";}
-    static std::string nameCovar4D() {return "ucldasv2Covar";}
+    static std::string nameCovar() {return "ucldasv2Error";}
 
     // Interfaces that ucldasv2 has to implement
     // ---------------------------------------------------
 // TODO(template_impl) typedef ucldasv2::Covariance          Covariance;
     typedef ucldasv2::Geometry            Geometry;
     typedef ucldasv2::GeometryIterator    GeometryIterator;
-// TODO(template_impl) typedef ucldasv2::GetValues           GetValues;
+    typedef ucldasv2::GetValues           GetValues;
     typedef ucldasv2::Increment           Increment;
-// TODO(template_impl) typedef ucldasv2::LinearGetValues     LinearGetValues;
+    typedef ucldasv2::LinearGetValues     LinearGetValues;
 // TODO(template_impl) typedef ucldasv2::ModelAuxControl     ModelAuxControl;
 // TODO(template_impl) typedef ucldasv2::ModelAuxCovariance  ModelAuxCovariance;
 // TODO(template_impl) typedef ucldasv2::ModelAuxIncrement   ModelAuxIncrement;

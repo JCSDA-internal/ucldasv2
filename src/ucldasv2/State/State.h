@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include "eckit/mpi/Comm.h"
+#include "ucldasv2/Fortran.h"
 
 #include "oops/base/Variables.h"
 #include "oops/util/DateTime.h"
