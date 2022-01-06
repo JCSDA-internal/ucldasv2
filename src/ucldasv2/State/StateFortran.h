@@ -55,9 +55,7 @@ namespace ucldasv2 {
                                     const size_t &,
                                     const double[],
                                     size_t &);
-    // void ucldasv2_state_analytic_f90(const F90flds &,
-    //                             const eckit::Configuration * const &,
-    //                             util::DateTime * const *);
+    void ucldasv2_state_update_fields_f90(const F90flds &, const oops::Variables &);
   }
 }  // namespace ucldasv2
 #endif  // UCLDASV2_STATE_STATEFORTRAN_H_

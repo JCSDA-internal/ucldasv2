@@ -13,7 +13,7 @@
 #include "ucldasv2/State/State.h"
 #include "ucldasv2/State/StateFortran.h"
 
-#include "eckit/config/Configuration.h"
+#include "eckit/config/LocalConfiguration.h"
 #include "eckit/exception/Exceptions.h"
 
 #include "oops/base/Variables.h"
@@ -47,14 +47,7 @@ namespace ucldasv2 {
     oops::Variables vars(vars_);
     ucldasv2_state_create_f90(keyFlds_, geom_->toFortran(), vars);
 
-    if (conf.has("analytic init")) {
-      std::string dt;
-      conf.get("date", dt);
-      time_ = util::DateTime(dt);
-      // ucldasv2_state_analytic_f90(toFortran(), &conf, &dtp);
-    } else {
-      ucldasv2_state_read_file_f90(toFortran(), &conf, &dtp);
-    }
+    ucldasv2_state_read_file_f90(toFortran(), &conf, &dtp);
     Log::trace() << "State::State created and read in." << std::endl;
   }
   // ----------------------------------------------------------------------------
@@ -79,6 +72,14 @@ namespace ucldasv2 {
     Log::trace() << "State::State destructed." << std::endl;
   }
   // ----------------------------------------------------------------------------
+  /// Basic operators
+  // -----------------------------------------------------------------------------
+  State & State::operator=(const State & rhs) {
+    time_ = rhs.time_;
+    ucldasv2_state_copy_f90(toFortran(), rhs.toFortran());
+    return *this;
+  }
+  //
   State & State::operator+=(const Increment & dx)
   {
     ASSERT(validTime() == dx.validTime());
@@ -101,13 +102,22 @@ namespace ucldasv2 {
     return zz;
   }
 
-// ----------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------
+
+  void State::updateFields(const oops::Variables & vars) {
+    // Update local variables
+    vars_ = vars;
+    // Update field data
+    ucldasv2_state_update_fields_f90(toFortran(), vars_);
+  }
+
+  // ----------------------------------------------------------------------------
 
   void State::zero() {
     ucldasv2_state_zero_f90(toFortran());
   }
 
-// ----------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------
 
   void State::read(const eckit::Configuration & files) {
     Log::trace() << "State::State read started." << std::endl;

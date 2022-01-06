@@ -71,7 +71,7 @@ subroutine ucldasv2_state_add_incr(self, rhs)
   real(kind=kind_real) :: amin = 1e-6_kind_real
   real(kind=kind_real) :: amax = 10.0_kind_real
   real(kind=kind_real), allocatable :: alpha(:,:)
-  type(ucldasv2_fields) :: incr
+  type(ucldasv2_fields), target :: incr
 
   ! make sure rhs is a subset of self
   call rhs%check_subset(self)
@@ -126,8 +126,8 @@ end subroutine ucldasv2_state_diff_incr
 !!
 !! \relates ucldasv2_state_mod::ucldasv2_state
 subroutine ucldasv2_state_convert(self, rhs)
-  class(ucldasv2_state), intent(inout) :: self
-  class(ucldasv2_state), intent(in)    :: rhs   !< source
+  class(ucldasv2_state),         intent(inout) :: self
+  class(ucldasv2_state), target, intent(in)    :: rhs   !< source
 
   integer :: n
   type(ucldasv2_convertstate_type) :: convert_state

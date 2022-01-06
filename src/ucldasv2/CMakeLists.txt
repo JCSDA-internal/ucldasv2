@@ -46,10 +46,12 @@ add_subdirectory(Geometry)
 add_subdirectory(GeometryIterator)
 add_subdirectory(GetValues)
 add_subdirectory(Increment)
+add_subdirectory(LinearVariableChange)
 add_subdirectory(Model)
 # TODO(template_impl) add_subdirectory(ModelAux)
 add_subdirectory(State)
 add_subdirectory(Utils)
+add_subdirectory(VariableChange)
 
 ## Fortran modules
 set(MODULE_DIR ${PROJECT_NAME}/module)
