@@ -5,12 +5,12 @@
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
-#include "soca/VariableChange/Model2GeoVaLs/Model2GeoVaLs.h"
-#include "soca/VariableChange/Model2GeoVaLs/Model2GeoVaLsFortran.h"
+#include "ucldasv2/VariableChange/Model2GeoVaLs/Model2GeoVaLs.h"
+#include "ucldasv2/VariableChange/Model2GeoVaLs/Model2GeoVaLsFortran.h"
 
 #include "oops/util/abor1_cpp.h"
 
-namespace soca {
+namespace ucldasv2 {
 
 // -----------------------------------------------------------------------------
 
@@ -34,7 +34,7 @@ Model2GeoVaLs::~Model2GeoVaLs() {}
 // -----------------------------------------------------------------------------
 
 void Model2GeoVaLs::changeVar(const State & xin, State & xout) const {
-  soca_model2geovals_changevar_f90(geom_->toFortran(),
+  ucldasv2_model2geovals_changevar_f90(geom_->toFortran(),
                                    xin.toFortran(), xout.toFortran());
 }
 
@@ -46,4 +46,4 @@ void Model2GeoVaLs::changeVarInverse(const State &, State &) const {
 
 // -----------------------------------------------------------------------------
 
-}  // namespace soca
+}  // namespace ucldasv2

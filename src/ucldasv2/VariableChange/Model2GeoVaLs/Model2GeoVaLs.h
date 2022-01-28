@@ -10,15 +10,15 @@
 #include <memory>
 #include <string>
 
-#include "soca/Traits.h"
+#include "ucldasv2/Traits.h"
 
-#include "soca/VariableChange/Base/VariableChangeBase.h"
+#include "ucldasv2/VariableChange/Base/VariableChangeBase.h"
 
-namespace soca {
+namespace ucldasv2 {
 
 class Model2GeoVaLs: public VariableChangeBase {
  public:
-  const std::string classname() {return "soca::Model2GeoVaLs";}
+  const std::string classname() {return "ucldasv2::Model2GeoVaLs";}
 
   Model2GeoVaLs(const Geometry &, const eckit::Configuration &);
   ~Model2GeoVaLs();
@@ -31,4 +31,4 @@ class Model2GeoVaLs: public VariableChangeBase {
   void print(std::ostream &) const override {}
 };
 
-}  // namespace soca
+}  // namespace ucldasv2

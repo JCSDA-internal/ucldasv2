@@ -6,12 +6,12 @@
  */
 #pragma once
 
-#include "soca/Fortran.h"
+#include "ucldasv2/Fortran.h"
 
-namespace soca {
+namespace ucldasv2 {
   extern "C" {
-    void soca_model2geovals_changevar_f90(const F90geom &,
+    void ucldasv2_model2geovals_changevar_f90(const F90geom &,
                                           const F90flds &,
                                           F90flds &);
   }
-}  // namespace soca
+}  // namespace ucldasv2
