@@ -12,12 +12,12 @@ locations:
     simulated variables: *ucldasv2_vars
     generate:
       random:
-        nobs: 200
-        lat1: -75
-        lat2: 90
-        lon1: 0
-        lon2: 360
-      obs errors: [1.0, 1.0]
+        nobs: 20
+        lat1: 40
+        lat2: 55
+        lon1: 270
+        lon2: 289
+      obs errors: [1.0]
 
 getvalues test:
   state generate:
