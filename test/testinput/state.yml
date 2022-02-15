@@ -10,8 +10,8 @@ state test:
     lnd_filename: lnd.res.nc
     state variables: &ucldasv2_vars [snowd]
 
-  norm file: 3.9215158525428992
-  norm generated state: 3.84702625989928
+  norm file: 1778.9298396230736
+  norm generated state: 1778.9298396230736
 
   date: *date
   tolerance: 1.0e-08
