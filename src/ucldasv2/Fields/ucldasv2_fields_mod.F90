@@ -111,7 +111,7 @@ type, public :: ucldasv2_fields
   type(ucldasv2_geom),  pointer :: geom => null()
 
   !> The ucldasv2_field instances that make up the fields
-  type(ucldasv2_field), pointer :: fields(:) => null()
+  type(ucldasv2_field), allocatable :: fields(:)
 
 contains
   !> \name constructors / destructors
@@ -211,6 +211,9 @@ contains
   procedure :: deserialize => ucldasv2_fields_deserialize
 
   !> \}
+
+  !> \copybrief ucldasv2_fields_update_fields \see ucldasv2_fields_update_fields
+  procedure :: update_fields => ucldasv2_fields_update_fields
 
 end type ucldasv2_fields
 
@@ -315,7 +318,7 @@ end subroutine ucldasv2_field_check_congruent
 subroutine ucldasv2_field_delete(self)
   class(ucldasv2_field), intent(inout) :: self
 
-  deallocate(self%val)
+  if (allocated(self%val)) deallocate(self%val)
 end subroutine
 
 
@@ -333,7 +336,7 @@ end subroutine
 !! \throws abor1_ftn aborts if illegal grid or levels specified
 !! \relates ucldasv2_fields_mod::ucldasv2_fields
 subroutine ucldasv2_fields_init_vars(self, vars)
-  class(ucldasv2_fields),         intent(inout) :: self
+  class(ucldasv2_fields),     intent(inout) :: self
   character(len=:), allocatable, intent(in) :: vars(:)
 
   integer :: i, nz
@@ -395,13 +398,13 @@ end subroutine
 subroutine ucldasv2_fields_create(self, geom, vars)
   class(ucldasv2_fields),        intent(inout) :: self
   type(ucldasv2_geom),  pointer, intent(inout) :: geom !< geometry to associate with the fields
-  type(oops_variables),      intent(inout) :: vars !< list of field names to create
+  type(oops_variables),      intent(in) :: vars !< list of field names to create
 
   character(len=:), allocatable :: vars_str(:)
   integer :: i
 
   ! make sure current object has not already been allocated
-  if (associated(self%fields)) &
+  if (allocated(self%fields)) &
     call abor1_ftn("ucldasv2_fields::create(): object already allocated")
 
   ! associate geometry
@@ -433,7 +436,6 @@ subroutine ucldasv2_fields_delete(self)
     call self%fields(i)%delete()
   end do
   deallocate(self%fields)
-  nullify(self%fields)
 
 end subroutine
 
@@ -455,7 +457,7 @@ subroutine ucldasv2_fields_copy(self, rhs)
   type(ucldasv2_field), pointer :: rhs_fld
 
   ! initialize the variables based on the names in rhs
-  if (.not. associated(self%fields)) then
+  if (.not. allocated(self%fields)) then
     self%geom => rhs%geom
     allocate(character(len=1024) :: vars_str(size(rhs%fields)))
     do i=1, size(vars_str)
@@ -481,9 +483,9 @@ end subroutine
 !! \throws abor1_ftn If no field exists with that name, the prorgam aborts
 !! \relates ucldasv2_fields_mod::ucldasv2_fields
 subroutine ucldasv2_fields_get(self, name, field)
-  class(ucldasv2_fields),         intent(in) :: self
-  character(len=*),           intent(in) :: name !< name of field to find
-  type(ucldasv2_field), pointer, intent(out) :: field  !< a pointer to the resulting field
+  class(ucldasv2_fields), target, intent(in)  :: self
+  character(len=*),               intent(in)  :: name !< name of field to find
+  type(ucldasv2_field), pointer,  intent(out) :: field  !< a pointer to the resulting field
 
   integer :: i
 
@@ -633,9 +635,9 @@ end subroutine ucldasv2_fields_mul
 !! \throws abor1_ftn aborts if \p is not a subset of \rhs
 !! \relates ucldasv2_fields_mod::ucldasv2_fields
 subroutine ucldasv2_fields_axpy(self, zz, rhs)
-  class(ucldasv2_fields), intent(inout) :: self
-  real(kind=kind_real),  intent(in) :: zz !< constant by which to multiply other rhs
-  class(ucldasv2_fields),    intent(in) :: rhs !< other field to add
+  class(ucldasv2_fields), target, intent(inout) :: self
+  real(kind=kind_real),           intent(in)    :: zz !< constant by which to multiply other rhs
+  class(ucldasv2_fields),         intent(in)    :: rhs !< other field to add
 
   type(ucldasv2_field), pointer :: f_rhs, f_lhs
   integer :: i
@@ -657,9 +659,9 @@ end subroutine ucldasv2_fields_axpy
 !! \throws abor1_ftn aborts if two fields are not congruent
 !! \relates ucldasv2_fields_mod::ucldasv2_fields
 subroutine ucldasv2_fields_dotprod(self, rhs, zprod)
-  class(ucldasv2_fields),     intent(in) :: self
-  class(ucldasv2_fields),      intent(in) :: rhs !< field 2 of dot product
-  real(kind=kind_real),  intent(out) :: zprod !< The resulting dot product
+  class(ucldasv2_fields), target, intent(in)  :: self
+  class(ucldasv2_fields), target, intent(in)  :: rhs !< field 2 of dot product
+  real(kind=kind_real),           intent(out) :: zprod !< The resulting dot product
 
   real(kind=kind_real) :: local_zprod
   integer :: ii, jj, kk, n
@@ -713,9 +715,9 @@ end subroutine ucldasv2_fields_dotprod
 !!    date from the files
 !! \relates ucldasv2_fields_mod::ucldasv2_fields
 subroutine ucldasv2_fields_read(self, f_conf, vdate)
-  class(ucldasv2_fields),        intent(inout) :: self
-  type(fckit_configuration), intent(in)    :: f_conf
-  type(datetime),            intent(inout) :: vdate
+  class(ucldasv2_fields), target, intent(inout) :: self
+  type(fckit_configuration),      intent(in)    :: f_conf
+  type(datetime),                 intent(inout) :: vdate
 
   integer, parameter :: max_string_length=800
   character(len=max_string_length) :: lnd_filename, filename
@@ -926,8 +928,8 @@ end subroutine ucldasv2_fields_check_subset
 !!
 !! \relates ucldasv2_fields_mod::ucldasv2_fields
 subroutine ucldasv2_fields_write_file(self, filename)
-  class(ucldasv2_fields),  intent(in) :: self
-  character(len=*),   intent(in) :: filename
+  class(ucldasv2_fields), intent(in) :: self
+  character(len=*),       intent(in) :: filename
 
   integer :: ii
 
@@ -949,9 +951,9 @@ end subroutine ucldasv2_fields_write_file
 !! TODO this can be generalized even more
 !! \relates ucldasv2_fields_mod::ucldasv2_fields
 subroutine ucldasv2_fields_write_rst(self, f_conf, vdate)
-  class(ucldasv2_fields),    intent(inout) :: self      !< Fields
-  type(fckit_configuration), intent(in)    :: f_conf   !< Configuration
-  type(datetime),            intent(inout) :: vdate    !< DateTime
+  class(ucldasv2_fields), target, intent(inout) :: self      !< Fields
+  type(fckit_configuration),      intent(in)    :: f_conf   !< Configuration
+  type(datetime),                 intent(inout) :: vdate    !< DateTime
 
   integer, parameter :: max_string_length=800
   character(len=max_string_length) :: lnd_filename, filename
@@ -1126,6 +1128,37 @@ subroutine ucldasv2_fields_deserialize(self, geom, vec_size, vec, index)
 
 end subroutine ucldasv2_fields_deserialize
 
+! ------------------------------------------------------------------------------
+!> update fields, using list of variables the method removes fields not in the
+!! list and allocates fields in the list but not allocated
+!!
+!! \see ucldasv2_fields_serialize
+!! \relates ucldasv2_fields_mod::ucldasv2_fields
+
+subroutine ucldasv2_fields_update_fields(self, vars)
+
+  class(ucldasv2_fields), intent(inout) :: self
+  type(oops_variables),   intent(in)    :: vars  ! New variable the field should have
+
+  type(ucldasv2_fields) :: tmp_fields
+  type(ucldasv2_field), pointer :: field
+  integer :: f
+
+  ! create new fields
+  call tmp_fields%create(self%geom, vars)
+
+  ! copy over where already existing
+  do f = 1, size(tmp_fields%fields)
+    if (self%has(tmp_fields%fields(f)%name)) then
+      call self%get(tmp_fields%fields(f)%name, field)
+      call tmp_fields%fields(f)%copy(field)
+    end if
+  end do
+
+  ! move ownership of fields from tmp to self
+  call move_alloc(tmp_fields%fields, self%fields)
+
+end subroutine ucldasv2_fields_update_fields
 
 ! ------------------------------------------------------------------------------
 ! Internal module functions/subroutines

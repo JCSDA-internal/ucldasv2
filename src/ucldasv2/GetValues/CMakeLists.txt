@@ -3,4 +3,8 @@ ucldasv2_target_sources(
     GetValues.h
     LinearGetValues.cc
     LinearGetValues.h
+    GetValuesFortran.h
+    ucldasv2_getvalues_mod.F90
+    ucldasv2_getvalues.reg.F90
+    ucldasv2_getvalues.interface.F90
 )

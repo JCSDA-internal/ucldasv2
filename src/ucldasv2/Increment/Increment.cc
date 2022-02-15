@@ -11,6 +11,8 @@
 
 #include "atlas/field.h"
 
+#include "eckit/geometry/Point3.h"
+
 #include "ucldasv2/Geometry/Geometry.h"
 #include "ucldasv2/GeometryIterator/GeometryIterator.h"
 #include "ucldasv2/Increment/Increment.h"
@@ -249,6 +251,16 @@ namespace ucldasv2 {
   // -----------------------------------------------------------------------------
 
   void Increment::updateTime(const util::Duration & dt) {time_ += dt;}
+
+
+  // -----------------------------------------------------------------------------
+
+  void Increment::updateFields(const oops::Variables & vars) {
+    // Update local variables
+    vars_ = vars;
+    // Update field data
+    ucldasv2_increment_update_fields_f90(toFortran(), vars_);
+  }
 
   // -----------------------------------------------------------------------------
   /// Serialization

@@ -16,16 +16,16 @@ set( ucldasv2_data_files
 )
 
 set( ucldasv2_model_param
-  Data/20x20x4/ucldasv2_gridspec.nc
-  Data/20x20x4/LND_input
+  Data/22x21x4/ucldasv2_gridspec.nc
+  Data/22x21x4/LND_input
 )
 
 set( ucldasv2_model_namelist
-  Data/20x20x4/input.nml
+  Data/22x21x4/input.nml
 )
 
 set( ucldasv2_model_restarts
-  Data/20x20x4/INPUT/lnd.res.nc
+  Data/22x21x4/INPUT/lnd.res.nc
 )
 
 # link the input files for the tests
@@ -45,7 +45,7 @@ foreach(FILENAME ${ucldasv2_model_restarts})
            ${CMAKE_CURRENT_BINARY_DIR}/INPUT/${filename} )
 endforeach(FILENAME)
 install(FILES ${ucldasv2_model_restarts}
-        DESTINATION ${INSTALL_DATA_DIR}/testdata/20x20x4/INPUT/ )
+        DESTINATION ${INSTALL_DATA_DIR}/testdata/22x21x4/INPUT/ )
 
 # LND's resource files
 foreach(FILENAME ${ucldasv2_model_param} ${ucldasv2_data_files})
@@ -105,11 +105,11 @@ ecbuild_add_test(
 # TODO(template_impl)   ARGS    testinput/modelaux.yml
 # TODO(template_impl)   LIBS    ucldasv2 )
 
-# TODO(template_impl) ecbuild_add_test(
-# TODO(template_impl)   TARGET  test_ucldasv2_getvalues
-# TODO(template_impl)   SOURCES executables/TestGetValues.cc
-# TODO(template_impl)   ARGS    testinput/getvalues.yml
-# TODO(template_impl)   LIBS    ucldasv2 )
+ecbuild_add_test(
+  TARGET  test_ucldasv2_getvalues
+  SOURCES executables/TestGetValues.cc
+  ARGS    testinput/getvalues.yml
+  LIBS    ucldasv2 )
 
 # TODO(template_impl) ecbuild_add_test(
 # TODO(template_impl)   TARGET  test_ucldasv2_lineargetvalues

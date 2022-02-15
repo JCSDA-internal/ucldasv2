@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include "eckit/mpi/Comm.h"
+#include "ucldasv2/Fortran.h"
 
 #include "oops/base/Variables.h"
 #include "oops/util/DateTime.h"
@@ -79,6 +79,10 @@ namespace ucldasv2 {
     const int & toFortran() const {return keyFlds_;}
     std::shared_ptr<const Geometry> geometry() const;
     const oops::Variables & variables() const { return vars_; }
+    const util::DateTime & time() const {return time_;}
+
+    /// Update the fields in variable changes
+    void updateFields(const oops::Variables &);
 
    private:
     void print(std::ostream &) const;

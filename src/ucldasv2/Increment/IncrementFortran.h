@@ -89,6 +89,7 @@ namespace ucldasv2 {
                                         const size_t &,
                                         const double[],
                                         size_t &);
+    void ucldasv2_increment_update_fields_f90(F90flds &, const oops::Variables &);
   }
 }  // namespace ucldasv2
 #endif  // UCLDASV2_INCREMENT_INCREMENTFORTRAN_H_

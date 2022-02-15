@@ -90,7 +90,7 @@ contains
 !!   causes problems
 !! \relates ucldasv2_increment_mod::ucldasv2_increment
 subroutine ucldasv2_increment_random(self)
-  class(ucldasv2_increment), intent(inout) :: self
+  class(ucldasv2_increment), target, intent(inout) :: self
 
   integer, parameter :: rseed = 1 ! constant for reproducability of tests
     ! NOTE: random seeds are not quite working the way expected,
@@ -144,10 +144,10 @@ end subroutine ucldasv2_increment_schur
 !! \todo clean this up so that the variable names are not hardcoded
 !! \relates ucldasv2_increment_mod::ucldasv2_increment
 subroutine ucldasv2_increment_getpoint(self, geoiter, values)
-  class(ucldasv2_increment), intent(   in) :: self
-  type(ucldasv2_geom_iter),  intent(   in) :: geoiter !< iterator pointing to desired gridpoint
+  class(ucldasv2_increment), target, intent(   in) :: self
+  type(ucldasv2_geom_iter),          intent(   in) :: geoiter !< iterator pointing to desired gridpoint
   !> return values for every field in a vertical column
-  real(kind=kind_real),  intent(inout) :: values(:)
+  real(kind=kind_real),              intent(inout) :: values(:)
 
   integer :: ff, ii, nz
   type(ucldasv2_field), pointer :: field
@@ -195,10 +195,10 @@ end subroutine ucldasv2_increment_getpoint
 !! \todo need to remove the hardcoded variable names
 !! \relates ucldasv2_increment_mod::ucldasv2_increment
 subroutine ucldasv2_increment_setpoint(self, geoiter, values)
-  class(ucldasv2_increment), intent(inout) :: self
-  type(ucldasv2_geom_iter),  intent(   in) :: geoiter !< iterator pointing to desired gridpoint
+  class(ucldasv2_increment), target, intent(inout) :: self
+  type(ucldasv2_geom_iter),          intent(   in) :: geoiter !< iterator pointing to desired gridpoint
   !> values to set. Values are for for every field in a vertical column
-  real(kind=kind_real),  intent(   in) :: values(:)
+  real(kind=kind_real),              intent(   in) :: values(:)
 
   integer :: ff, ii, nz
   type(ucldasv2_field), pointer :: field
@@ -309,10 +309,10 @@ end subroutine ucldasv2_increment_dirac
 !! \see ucldasv2_increment_from_atlas
 !! \relates ucldasv2_increment_mod::ucldasv2_increment
 subroutine ucldasv2_increment_set_atlas(self, geom, vars, afieldset)
-  class(ucldasv2_increment), intent(in)    :: self
-  type(ucldasv2_geom),       intent(in)    :: geom
-  type(oops_variables),  intent(in)    :: vars
-  type(atlas_fieldset),  intent(inout) :: afieldset
+  class(ucldasv2_increment), target, intent(in)    :: self
+  type(ucldasv2_geom),               intent(in)    :: geom
+  type(oops_variables),              intent(in)    :: vars
+  type(atlas_fieldset),              intent(inout) :: afieldset
 
   integer :: jvar, i, jz, nz
   logical :: var_found
@@ -355,10 +355,10 @@ end subroutine ucldasv2_increment_set_atlas
 !!
 !! \relates ucldasv2_increment_mod::ucldasv2_increment
 subroutine ucldasv2_increment_to_atlas(self, geom, vars, afieldset)
-  class(ucldasv2_increment), intent(in)    :: self
-  type(ucldasv2_geom),       intent(in)    :: geom
-  type(oops_variables),  intent(in)    :: vars
-  type(atlas_fieldset),  intent(inout) :: afieldset
+  class(ucldasv2_increment), target, intent(in)    :: self
+  type(ucldasv2_geom),               intent(in)    :: geom
+  type(oops_variables),              intent(in)    :: vars
+  type(atlas_fieldset),              intent(inout) :: afieldset
 
   integer :: jvar, i, jz, nz
   real(kind=kind_real), pointer :: real_ptr_1(:), real_ptr_2(:,:)
@@ -419,10 +419,10 @@ end subroutine ucldasv2_increment_to_atlas
 !!
 !! \relates ucldasv2_increment_mod::ucldasv2_increment
 subroutine ucldasv2_increment_from_atlas(self, geom, vars, afieldset)
-  class(ucldasv2_increment), intent(inout) :: self
-  type(ucldasv2_geom),       intent(in)    :: geom
-  type(oops_variables),  intent(in)    :: vars
-  type(atlas_fieldset),  intent(in)    :: afieldset
+  class(ucldasv2_increment), target, intent(inout) :: self
+  type(ucldasv2_geom),               intent(in)    :: geom
+  type(oops_variables),              intent(in)    :: vars
+  type(atlas_fieldset),              intent(in)    :: afieldset
 
   integer :: jvar, i, jz, nz
   real(kind=kind_real), pointer :: real_ptr_1(:), real_ptr_2(:,:)
@@ -478,8 +478,8 @@ end subroutine ucldasv2_increment_from_atlas
 !!
 !! \relates ucldasv2_increment_mod::ucldasv2_increment
 subroutine ucldasv2_increment_change_resol(self, rhs)
-  class(ucldasv2_increment), intent(inout) :: self  ! target
-  class(ucldasv2_increment),    intent(in) :: rhs   ! source
+  class(ucldasv2_increment),         intent(inout) :: self  ! target
+  class(ucldasv2_increment), target, intent(in)    :: rhs   ! source
 
   integer :: n
   type(ucldasv2_convertstate_type) :: convert_state

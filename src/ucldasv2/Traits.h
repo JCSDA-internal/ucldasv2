@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2019-2020 UCAR
+ * (C) Copyright 2017-2021 UCAR
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -10,37 +10,47 @@
 
 #include <string>
 
-// TODO(template_impl) #include "ucldasv2/Covariance/Covariance.h"
+// TODO(template_impl) #include "ucldasv2/Covariance/ErrorCovariance.h"
 #include "ucldasv2/Geometry/Geometry.h"
 #include "ucldasv2/GeometryIterator/GeometryIterator.h"
-// TODO(template_impl) #include "ucldasv2/GetValues/GetValues.h"
-// TODO(template_impl) #include "ucldasv2/GetValues/LinearGetValues.h"
+#include "ucldasv2/GetValues/GetValues.h"
+#include "ucldasv2/GetValues/LinearGetValues.h"
 #include "ucldasv2/Increment/Increment.h"
-// TODO(template_impl) #include "ucldasv2/ModelAux/ModelAuxControl.h"
-// TODO(template_impl) #include "ucldasv2/ModelAux/ModelAuxCovariance.h"
-// TODO(template_impl) #include "ucldasv2/ModelAux/ModelAuxIncrement.h"
+#include "ucldasv2/LinearVariableChange/LinearVariableChange.h"
+// TODO(template_impl) #include "ucldasv2/ModelBias/ModelBias.h"
+// TODO(template_impl) #include "ucldasv2/ModelBias/ModelBiasCovariance.h"
+// TODO(template_impl) #include "ucldasv2/ModelBias/ModelBiasIncrement.h"
 #include "ucldasv2/State/State.h"
+#include "ucldasv2/VariableChange/VariableChange.h"
 
 namespace ucldasv2 {
 
-  struct Traits{
-    static std::string name() {return "ucldasv2";}
-    static std::string nameCovar() {return "ucldasv2Covar";}
-    static std::string nameCovar4D() {return "ucldasv2Covar";}
+/**
+ * \brief The main traits structure for UCLDASV2.
+ *
+ * This structure is responsible for supplying UCLDASV2 specific code to the JEDI
+ * applications within \ref src/mains directory.
+ */
+struct Traits {
+  static std::string name() {return "UCLDASV2";}
+  static std::string nameCovar() {return "SocaError";}
 
-    // Interfaces that ucldasv2 has to implement
-    // ---------------------------------------------------
-// TODO(template_impl) typedef ucldasv2::Covariance          Covariance;
-    typedef ucldasv2::Geometry            Geometry;
-    typedef ucldasv2::GeometryIterator    GeometryIterator;
-// TODO(template_impl) typedef ucldasv2::GetValues           GetValues;
-    typedef ucldasv2::Increment           Increment;
-// TODO(template_impl) typedef ucldasv2::LinearGetValues     LinearGetValues;
-// TODO(template_impl) typedef ucldasv2::ModelAuxControl     ModelAuxControl;
-// TODO(template_impl) typedef ucldasv2::ModelAuxCovariance  ModelAuxCovariance;
-// TODO(template_impl) typedef ucldasv2::ModelAuxIncrement   ModelAuxIncrement;
-    typedef ucldasv2::State               State;
-  };
+  typedef ucldasv2::Geometry             Geometry;
+  typedef ucldasv2::GeometryIterator     GeometryIterator;
+  typedef ucldasv2::State                State;
+  typedef ucldasv2::Increment            Increment;
+// TODO(template_impl)   typedef ucldasv2::ErrorCovariance      Covariance;
+  typedef ucldasv2::GetValues            GetValues;
+  typedef ucldasv2::LinearGetValues      LinearGetValues;
+
+// TODO(template_impl)   typedef ucldasv2::ModelBias            ModelAuxControl;
+// TODO(template_impl)   typedef ucldasv2::ModelBiasIncrement   ModelAuxIncrement;
+// TODO(template_impl)   typedef ucldasv2::ModelBiasCovariance  ModelAuxCovariance;
+
+  typedef ucldasv2::LinearVariableChange LinearVariableChange;
+  typedef ucldasv2::VariableChange       VariableChange;
+};
+
 }  // namespace ucldasv2
 
 #endif  // UCLDASV2_TRAITS_H_
