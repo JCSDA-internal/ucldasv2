@@ -48,12 +48,13 @@ subroutine ucldasv2_model2geovals_changevar_f90(c_key_geom, c_key_xin, c_key_xou
 
     ! identity operators
    
+    write(*,*) (xout%fields(i)%name)
 
     ! special cases
     select case (xout%fields(i)%name)
-  
+       
       ! identity operators
-      case default
+      case ('snowd')
         call xin%get(xout%fields(i)%metadata%name, field)
         if (xout%fields(i)%name == field%metadata%name .or. &
             xout%fields(i)%name == field%metadata%getval_name ) then
